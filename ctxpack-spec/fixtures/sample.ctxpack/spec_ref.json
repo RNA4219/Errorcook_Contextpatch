@@ -1,0 +1,51 @@
+{
+  "$schema": "https://example.com/ctxpack.v1.schema.json",
+  "ctxpack_version": "1",
+  "id": "00000000-0000-0000-0000-000000000000",
+  "created_at": "2025-11-01T00:00:00Z",
+  "project_root": "./",
+  "languages": [
+    "ts"
+  ],
+  "entry_points": [
+    "src/index.ts"
+  ],
+  "test": {
+    "command": "pnpm -s test:ci",
+    "format": "tap",
+    "subset": [
+      "lint",
+      "typecheck",
+      "unit",
+      "e2e",
+      "coverage"
+    ]
+  },
+  "reproduce": {
+    "command": "pnpm -s build && pnpm -s test --filter failing"
+  },
+  "roi": {
+    "impact": 0.7,
+    "confidence": 0.8,
+    "effort": 0.3,
+    "risk": 0.2
+  },
+  "evidence": [
+    "artifact/ci/failing.tap"
+  ],
+  "limits": {
+    "max_files": 12,
+    "max_patch_hunks": 6,
+    "token_budget": 1200
+  },
+  "ci": {
+    "language": "typescript",
+    "last_run": "2025-11-01T00:00:00Z",
+    "status": "failed",
+    "failed_stage": "test",
+    "command": "pnpm -s test:ci",
+    "log_path": "artifact/ci/failing.tap",
+    "error_summary": "1 failing snapshot in tests/e2e/share.spec.ts",
+    "ci_source": "github-actions"
+  }
+}

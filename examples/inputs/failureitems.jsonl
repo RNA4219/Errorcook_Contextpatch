@@ -1,0 +1,1 @@
+{"tool":"pytest","path":"src/foo.py::test_bar","message":"assert 2 == 3","severity":"error"}

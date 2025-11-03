@@ -1,0 +1,3 @@
+FAILED tests/test_calc.py::test_add - AssertionError: 4 != 5
+==================== short test summary info ====================
+FAILED tests/test_calc.py::test_add

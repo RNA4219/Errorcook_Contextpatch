@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "errorcook.output",
+  "type": "object",
+  "required": [
+    "hypothesis",
+    "suspects",
+    "patch",
+    "tests"
+  ],
+  "properties": {
+    "hypothesis": {
+      "type": "string",
+      "minLength": 20
+    },
+    "suspects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "patch": {
+      "type": "object",
+      "required": [
+        "unified_diff"
+      ],
+      "properties": {
+        "unified_diff": {
+          "type": "string",
+          "minLength": 10
+        },
+        "files_changed": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lines_added": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lines_removed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "content"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 10
+          },
+          "purpose": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

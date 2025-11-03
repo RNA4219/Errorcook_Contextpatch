@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "hypothesis",
+    "suspects",
+    "patch",
+    "tests"
+  ],
+  "properties": {
+    "hypothesis": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "suspects": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "patch": {
+      "type": "object",
+      "required": [
+        "unified_diff"
+      ],
+      "properties": {
+        "unified_diff": {
+          "type": "string"
+        },
+        "hunk_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "content"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

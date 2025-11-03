@@ -1,0 +1,33 @@
+{
+  "defaults": {
+    "token_budget": 1200,
+    "temperature": 0.2,
+    "max_output_tokens": 1200
+  },
+  "languages": {
+    "ts-js": {
+      "system": "prompts/ts-js/system.md",
+      "user": "prompts/ts-js/user.md",
+      "params": {
+        "temperature": 0.2,
+        "top_p": 0.9
+      }
+    },
+    "python": {
+      "system": "prompts/python/system.md",
+      "user": "prompts/python/user.md",
+      "params": {
+        "temperature": 0.2,
+        "top_p": 0.9
+      }
+    },
+    "rust": {
+      "system": "prompts/rust/system.md",
+      "user": "prompts/rust/user.md",
+      "params": {
+        "temperature": 0.15,
+        "top_p": 0.9
+      }
+    }
+  }
+}

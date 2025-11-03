@@ -1,0 +1,4 @@
+---- module::tests::panics stdout ----
+thread 'module::tests::panics' panicked at 'boom', src/lib.rs:12:5
+failures:
+    module::tests::panics

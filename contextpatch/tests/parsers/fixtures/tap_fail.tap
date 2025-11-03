@@ -1,0 +1,4 @@
+TAP version 13
+not ok 1 tests/e2e/share.spec.ts snapshot failed
+ok 2 another
+1..2

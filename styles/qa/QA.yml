@@ -1,0 +1,6 @@
+banned_words:
+  - obviously
+  - simply
+naming_conventions:
+  - prefer: snake_case for python
+  - prefer: camelCase for JS/TS

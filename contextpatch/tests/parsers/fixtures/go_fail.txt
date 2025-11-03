@@ -1,0 +1,3 @@
+--- FAIL: TestDoThing (0.00s)
+    thing_test.go:42: expected X, got Y
+FAIL

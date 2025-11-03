@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "errorcook.config",
+  "type": "object",
+  "required": [
+    "objective",
+    "limits",
+    "artifacts"
+  ],
+  "properties": {
+    "objective": {
+      "type": "object",
+      "description": "o1kのObjective相当（参照）"
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_files": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 5
+        },
+        "max_lines": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 60
+        },
+        "timeout_sec": {
+          "type": "integer",
+          "minimum": 10,
+          "default": 900
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "properties": {
+        "ci_dir": {
+          "type": "string"
+        },
+        "repo_root": {
+          "type": "string"
+        },
+        "birdseye_index": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

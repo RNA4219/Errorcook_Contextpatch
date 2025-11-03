@@ -1,0 +1,62 @@
+name: ts-ci
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ts-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-ci:
+    name: ${{ matrix.pkg }} on Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20]
+        pkg:  [contextpatch, errorcook]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node (pnpm cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+      - name: Install deps
+        run: pnpm -C ${{ matrix.pkg }} i
+      - name: Lint
+        run: pnpm -C ${{ matrix.pkg }} lint
+      - name: Typecheck
+        run: pnpm -C ${{ matrix.pkg }} typecheck
+      - name: Prepare artifact dir
+        run: mkdir -p artifact/ci
+      - name: Unit tests (capture log)
+        run: pnpm -C ${{ matrix.pkg }} test | tee artifact/ci/${{ matrix.pkg }}-vitest.log
+      - name: Build
+        run: pnpm -C ${{ matrix.pkg }} build
+      - name: Emit .ctxpack on failure
+        if: failure()
+        run: |
+          mkdir -p work/.ctxpack
+          pnpm -C contextpatch exec tsx src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
+          pnpm -C contextpatch exec tsx src/cli.ts triage   -p work/.ctxpack
+          pnpm -C contextpatch exec tsx src/cli.ts patch    -p work/.ctxpack
+          pnpm -C contextpatch exec tsx src/cli.ts validate -p work/.ctxpack
+          pnpm -C errorcook    exec tsx src/cli.ts smell    -p work/.ctxpack
+          pnpm -C errorcook    exec tsx src/cli.ts rank     -p work/.ctxpack
+          pnpm -C errorcook    exec tsx src/cli.ts propose  -p work/.ctxpack
+          pnpm -C errorcook    exec tsx src/cli.ts validate -p work/.ctxpack
+      - name: Upload .ctxpack artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctxpack-${{ matrix.pkg }}
+          path: |
+            work/.ctxpack/
+            artifact/ci/

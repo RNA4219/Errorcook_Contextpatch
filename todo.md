@@ -1,0 +1,9 @@
+- [ ] 参照ファイルの読み込みと分析
+  - [ ] README.md（プロジェクト全体の仕様と目的）
+  - [ ] SPECS/objective.md（目的関数、エラー修正の評価基準とGates）
+  - [ ] workflow-cookbook-compact/docs/downsized_cookbook_summary.md（ワークフロー概要）
+  - [ ] workflow-cookbook-compact/recipes/summarize.yaml（YAMLレシピ例）
+- [ ] 要件定義の分析と不足部分の特定
+- [ ] 仕様書の作成
+- [ ] 不足要件があればユーザーに質問
+- [ ] 最終仕様書の確認

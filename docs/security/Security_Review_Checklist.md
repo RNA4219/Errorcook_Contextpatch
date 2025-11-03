@@ -1,0 +1,3 @@
+- Threat modeling
+- Secrets handling
+- Dependency policy

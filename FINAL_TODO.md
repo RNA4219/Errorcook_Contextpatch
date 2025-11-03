@@ -1,0 +1,20 @@
+- [x] 参照ファイルの読み込みと分析
+  - [x] README.md（プロジェクト全体の仕様と目的）
+  - [x] SPECS/objective.md（目的関数、エラー修正の評価基準とGates）
+  - [x] workflow-cookbook-compact/docs/downsized_cookbook_summary.md（ワークフロー概要）
+  - [x] workflow-cookbook-compact/recipes/summarize.yaml（YAMLレシピ例）
+- [x] 要件定義の分析と不足部分の特定
+- [x] 仕様書の作成
+- [x] 不足要件があればユーザーに質問
+- [x] 最終仕様書の確認
+- [x] 設計資料の確認
+  - [x] docs/design.md
+  - [x] SPECS/architecture.md
+  - [x] SPECS/interfaces.md
+  - [x] workflow-cookbook-compact/docs/DESIGN.md
+  - [x] workflow-cookbook-compact/docs/BLUEPRINT.md
+- [x] 実装フェーズ準備
+  - [x] 開発環境設定計画
+  - [x] 優先順位付けとロードマップ
+  - [x] タスクの詳細化
+- [x] 最終実装計画書の作成

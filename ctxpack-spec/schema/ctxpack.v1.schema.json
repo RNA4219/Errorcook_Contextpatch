@@ -1,0 +1,137 @@
+{
+  "$id": "https://example.com/schema/ctxpack.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "ctxpack_version",
+    "id",
+    "project_root",
+    "languages"
+  ],
+  "properties": {
+    "ctxpack_version": {
+      "const": "1"
+    },
+    "id": {
+      "type": "string"
+    },
+    "project_root": {
+      "type": "string"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "entry_points": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "test": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "format": {
+          "enum": [
+            "tap",
+            "junit",
+            "other"
+          ]
+        },
+        "subset": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "reproduce": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string"
+        }
+      }
+    },
+    "roi": {
+      "type": "object",
+      "properties": {
+        "impact": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "effort": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "risk": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_files": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_patch_hunks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "token_budget": {
+          "type": "integer",
+          "minimum": 128
+        }
+      }
+    },
+    "ci": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string"
+        },
+        "last_run": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed"
+          ]
+        },
+        "failed_stage": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "log_path": {
+          "type": "string"
+        },
+        "error_summary": {
+          "type": "string"
+        },
+        "ci_source": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

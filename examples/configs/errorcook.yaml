@@ -1,0 +1,20 @@
+artifacts:
+  ci_dir: artifacts/ci
+  repo_root: .
+  birdseye_index: artifacts/birdseye/index.json
+
+limits: { max_files: 5, max_lines: 60, timeout_sec: 900 }
+
+objective:
+  requireJson: true
+  jsonSchemaPath: SCHEMAS/output.schema.json
+  min_len: 100
+  max_len: 4000
+  required_sections: ["hypothesis","suspects","patch","tests"]
+  weights:
+    json_field_coverage: 1.0
+    length_fit: 0.2
+    keyword_coverage: 0.3
+  keywords: ["tests","unified diff","suspects"]
+  target_len: 900
+  diversity: { enable: false }
