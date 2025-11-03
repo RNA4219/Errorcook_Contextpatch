@@ -1,0 +1,35 @@
+# GitHub Actions ワークフロー修正TODO
+
+## 問題概要
+- GitHub Actionsワークフローで `contextpatch` と `errorcook` ディレクトリが見つからないエラー
+- Matrix strategyで複数のpkg（contextpatch, errorcook）を実行時の問題
+
+## タスクリスト
+- [x] Matrix strategyパッケージの実行順序を確認
+- [x] 現在のワークフローステップの構造を分析
+- [x] ディレクトリ指定の問題を特定
+- [x] 適切なパス解決にワークフローを修正
+- [ ] テスト случаевでワークフローの修正を検証
+
+## 技術的な修正内容
+1. Matrix strategyを独立job構造に変更
+   - `contextpatch` jobと`errorcook` jobに分離
+   - 各jobで条件付きディレクトリ参照ロジックを実装
+2. 失敗時の.ctpack生成ステップの改良
+   - `if [ -d "../directory_name" ]`条件付き実行
+   - 各jobで両方のパッケージコマンドを実行可能
+3. `--prefix`コマンド使用を継続
+   - 既存のパス管理構造を保持
+
+## 修正されたファイル
+- `.github/workflows/ts-ci.yml`
+
+## 期待される結果
+- すべてのjob（contextpatch, errorcook）で正常に動作
+- 失敗時の.ctpack生成が適切に機能
+- ディレクトリ存在確認による安全性向上
+
+## 次のステップ
+- [ ] CI/CDパイプラインでの修正検証
+- [ ]  Artifact生成のテスト
+- [ ]  Both packagesí処理順序の確認

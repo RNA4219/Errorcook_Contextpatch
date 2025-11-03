@@ -8,51 +8,96 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  node-ci:
-    name: ${{ matrix.pkg }} on Node ${{ matrix.node }}
+  contextpatch:
+    name: contextpatch on Node 20
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [20]
-        pkg:  [contextpatch, errorcook]
-
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node (npm cache)
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 20
           cache: npm
       - name: Install deps
-        run: npm --prefix ${{ matrix.pkg }} install
+        run: npm --prefix contextpatch install
       - name: Lint
-        run: npm --prefix ${{ matrix.pkg }} run lint
+        run: npm --prefix contextpatch run lint
       - name: Typecheck
-        run: npm --prefix ${{ matrix.pkg }} run typecheck
+        run: npm --prefix contextpatch run typecheck
       - name: Prepare artifact dir
         run: mkdir -p artifact/ci
       - name: Unit tests (capture log)
-        run: npm --prefix ${{ matrix.pkg }} run test | tee artifact/ci/${{ matrix.pkg }}-vitest.log
+        run: npm --prefix contextpatch run test | tee artifact/ci/contextpatch-vitest.log
       - name: Build
-        run: npm --prefix ${{ matrix.pkg }} run build
+        run: npm --prefix contextpatch run build
       - name: Emit .ctxpack on failure
         if: failure()
         run: |
           mkdir -p work/.ctxpack
+          # Process contextpatch commands
           cd contextpatch && npx tsx src/cli.ts detect   -p ../work/.ctxpack --from-artifact ../artifact/ci/
           cd contextpatch && npx tsx src/cli.ts triage   -p ../work/.ctxpack
           cd contextpatch && npx tsx src/cli.ts patch    -p ../work/.ctxpack
           cd contextpatch && npx tsx src/cli.ts validate -p ../work/.ctxpack
-          cd errorcook && npx tsx src/cli.ts smell       -p ../work/.ctxpack
-          cd errorcook && npx tsx src/cli.ts rank        -p ../work/.ctxpack
-          cd errorcook && npx tsx src/cli.ts propose     -p ../work/.ctxpack
-          cd errorcook && npx tsx src/cli.ts validate    -p ../work/.ctxpack
+          # Process errorcook commands if available
+          if [ -d "../errorcook" ]; then
+            cd ../errorcook && npx tsx src/cli.ts smell       -p ../work/.ctxpack
+            cd ../errorcook && npx tsx src/cli.ts rank        -p ../work/.ctxpack
+            cd ../errorcook && npx tsx src/cli.ts propose     -p ../work/.ctxpack
+            cd ../errorcook && npx tsx src/cli.ts validate    -p ../work/.ctxpack
+          fi
       - name: Upload .ctxpack artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ctxpack-${{ matrix.pkg }}
+          name: ctxpack-contextpatch
+          path: |
+            work/.ctxpack/
+            artifact/ci/
+
+  errorcook:
+    name: errorcook on Node 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node (npm cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install deps
+        run: npm --prefix errorcook install
+      - name: Lint
+        run: npm --prefix errorcook run lint
+      - name: Typecheck
+        run: npm --prefix errorcook run typecheck
+      - name: Prepare artifact dir
+        run: mkdir -p artifact/ci
+      - name: Unit tests (capture log)
+        run: npm --prefix errorcook run test | tee artifact/ci/errorcook-vitest.log
+      - name: Build
+        run: npm --prefix errorcook run build
+      - name: Emit .ctxpack on failure
+        if: failure()
+        run: |
+          mkdir -p work/.ctxpack
+          # Process errorcook commands
+          cd errorcook && npx tsx src/cli.ts smell       -p ../work/.ctxpack
+          cd errorcook && npx tsx src/cli.ts rank        -p ../work/.ctxpack
+          cd errorcook && npx tsx src/cli.ts propose     -p ../work/.ctxpack
+          cd errorcook && npx tsx src/cli.ts validate    -p ../work/.ctxpack
+          # Process contextpatch commands if available
+          if [ -d "../contextpatch" ]; then
+            cd ../contextpatch && npx tsx src/cli.ts detect   -p ../work/.ctxpack --from-artifact ../artifact/ci/
+            cd ../contextpatch && npx tsx src/cli.ts triage   -p ../work/.ctxpack
+            cd ../contextpatch && npx tsx src/cli.ts patch    -p ../work/.ctxpack
+            cd ../contextpatch && npx tsx src/cli.ts validate -p ../work/.ctxpack
+          fi
+      - name: Upload .ctxpack artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctxpack-errorcook
           path: |
             work/.ctxpack/
             artifact/ci/
