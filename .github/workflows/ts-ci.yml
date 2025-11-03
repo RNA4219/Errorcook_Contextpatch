@@ -33,19 +33,27 @@ jobs:
       - name: Emit .ctxpack on failure
         if: failure()
         run: |
+          set -e
           mkdir -p work/.ctxpack
+          echo "Current directory: $(pwd)"
+          echo "Repository structure:"
+          ls -la
           # Process contextpatch commands
-          cd contextpatch && npx tsx src/cli.ts detect   -p ../work/.ctxpack --from-artifact ../artifact/ci/
-          cd contextpatch && npx tsx src/cli.ts triage   -p ../work/.ctxpack
-          cd contextpatch && npx tsx src/cli.ts patch    -p ../work/.ctxpack
-          cd contextpatch && npx tsx src/cli.ts validate -p ../work/.ctxpack
+          npx --prefix contextpatch tsx src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
+          npx --prefix contextpatch tsx src/cli.ts triage   -p work/.ctxpack
+          npx --prefix contextpatch tsx src/cli.ts patch    -p work/.ctxpack
+          npx --prefix contextpatch tsx src/cli.ts validate -p work/.ctxpack
           # Process errorcook commands if available
-          if [ -d "../errorcook" ]; then
-            cd ../errorcook && npx tsx src/cli.ts smell       -p ../work/.ctxpack
-            cd ../errorcook && npx tsx src/cli.ts rank        -p ../work/.ctxpack
-            cd ../errorcook && npx tsx src/cli.ts propose     -p ../work/.ctxpack
-            cd ../errorcook && npx tsx src/cli.ts validate    -p ../work/.ctxpack
+          if [ -d "errorcook" ]; then
+            echo "Processing errorcook commands..."
+            npx --prefix errorcook tsx src/cli.ts smell       -p work/.ctxpack
+            npx --prefix errorcook tsx src/cli.ts rank        -p work/.ctxpack
+            npx --prefix errorcook tsx src/cli.ts propose     -p work/.ctxpack
+            npx --prefix errorcook tsx src/cli.ts validate    -p work/.ctxpack
+          else
+            echo "errorcook directory not found, skipping errorcook commands"
           fi
+          echo ".ctxpack generation completed successfully"
       - name: Upload .ctxpack artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -80,19 +88,27 @@ jobs:
       - name: Emit .ctxpack on failure
         if: failure()
         run: |
+          set -e
           mkdir -p work/.ctxpack
+          echo "Current directory: $(pwd)"
+          echo "Repository structure:"
+          ls -la
           # Process errorcook commands
-          cd errorcook && npx tsx src/cli.ts smell       -p ../work/.ctxpack
-          cd errorcook && npx tsx src/cli.ts rank        -p ../work/.ctxpack
-          cd errorcook && npx tsx src/cli.ts propose     -p ../work/.ctxpack
-          cd errorcook && npx tsx src/cli.ts validate    -p ../work/.ctxpack
+          npx --prefix errorcook tsx src/cli.ts smell       -p work/.ctxpack
+          npx --prefix errorcook tsx src/cli.ts rank        -p work/.ctxpack
+          npx --prefix errorcook tsx src/cli.ts propose     -p work/.ctxpack
+          npx --prefix errorcook tsx src/cli.ts validate    -p work/.ctxpack
           # Process contextpatch commands if available
-          if [ -d "../contextpatch" ]; then
-            cd ../contextpatch && npx tsx src/cli.ts detect   -p ../work/.ctxpack --from-artifact ../artifact/ci/
-            cd ../contextpatch && npx tsx src/cli.ts triage   -p ../work/.ctxpack
-            cd ../contextpatch && npx tsx src/cli.ts patch    -p ../work/.ctxpack
-            cd ../contextpatch && npx tsx src/cli.ts validate -p ../work/.ctxpack
+          if [ -d "contextpatch" ]; then
+            echo "Processing contextpatch commands..."
+            npx --prefix contextpatch tsx src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
+            npx --prefix contextpatch tsx src/cli.ts triage   -p work/.ctxpack
+            npx --prefix contextpatch tsx src/cli.ts patch    -p work/.ctxpack
+            npx --prefix contextpatch tsx src/cli.ts validate -p work/.ctxpack
+          else
+            echo "contextpatch directory not found, skipping contextpatch commands"
           fi
+          echo ".ctxpack generation completed successfully"
       - name: Upload .ctxpack artifact
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,24 +1,32 @@
-# GitHub Actions ワークフロー修正TODO
+# GitHub Actions CI Error Fix Task
 
-## 問題概要
-- GitHub Actionsワークフローで `contextpatch` と `errorcook` ディレクトリが見つからないエラー
-- Matrix strategyで複数のpkg（contextpatch, errorcook）を実行時の問題
+## Overview
+Fix GitHub Actions workflow that fails due to:
+1. Missing contextpatch/errorcook directories in CI runner
+2. Incorrect path construction causing double repo name in paths
+3. Missing required files for CI operations
 
-## タスクリスト
-- [ ] Matrix strategyパッケージの実行順序を確認
-- [ ] 現在のワークフローステップの構造を分析
-- [ ] ディレクトリ指定の問題を特定
-- [ ] 適切なパス解決にワークフローを修正
-- [ ] テスト случаевでワークフローの修正を検証
+## Issues Identified
+1. **Directory Navigation Error**: CI tries to cd into `contextpatch` directory that doesn't exist at expected path
+2. **Path Construction Issue**: Paths include double repo name (`Errorcook_Contextpatch/Errorcook_Contextpatch`)
+3. **Missing Files**: Required files like `smell-validate.tap` not found in expected location
+4. **Dependency Lock**: Missing package-lock.json or similar lock files
 
-## 技術的な問題点
-1. Matrix strategy使用時のパッケージディレクトリ解決
-2. 失敗時の.ctpack生成ステップのパス問題
-3. `npm --prefix` とcdコマンドの組み合わせ問題
+## Implementation Steps
 
-## 修正が必要なファイル
-- `.github/workflows/ts-ci.yml`
+- [x] Analyze current GitHub Actions workflow configuration
+- [x] Examine directory structure in repository
+- [x] Identify correct paths for contextpatch and errorcook directories
+- [x] Fix path construction in CI workflow
+- [x] Update CI script to handle missing directories gracefully
+- [x] Add proper error handling and logging
+- [x] Test workflow locally if possible
+- [x] Create/update necessary lock files if missing
+- [x] Verify all required files are in correct locations
+- [x] Update documentation with corrected workflow paths
 
-## 期待される結果
-- すべてのMatrix packages（contextpatch, errorcook）で正常に動作
-- 失敗時の.ctpack生成が適切に機能
+## Expected Outcomes
+- CI workflow runs without directory navigation errors
+- All commands execute in correct directories
+- Proper error handling for missing components
+- Clear logging for troubleshooting

@@ -48,7 +48,9 @@ function main() {
     }
     case "validate": {
       const tap = "TAP version 13\nok 1 smell baseline\n1..1\n";
-      writeFileSync(resolve(artifact, "ci/smell-validate.tap"), tap);
+      const ciDir = resolve(artifact, "ci");
+      ensureDir(ciDir);
+      writeFileSync(resolve(ciDir, "smell-validate.tap"), tap);
       console.log("validate: green");
       break;
     }
