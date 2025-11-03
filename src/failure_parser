@@ -1,0 +1,96 @@
+import { FailureItem } from './types/failure_item';
+
+/**
+ * Map severity levels to standardized format
+ */
+export function mapSeverity(severity: number | string): 'error' | 'warning' {
+  if (typeof severity === 'number') {
+    switch (severity) {
+      case 2: return 'error';
+      case 1: return 'warning';
+      default: return 'error';
+    }
+  } else {
+    switch (severity.toLowerCase()) {
+      case 'error': return 'error';
+      case 'warning': return 'warning';
+      default: return 'error';
+    }
+  }
+}
+
+/**
+ * Parse ESLint JSON output into FailureItem array
+ */
+export function parseESLintOutput(eslintOutput: any[]): FailureItem[] {
+  return eslintOutput.map((item, index) => ({
+    tool: 'eslint',
+    path: undefined,
+    message: item.message || 'ESLint error',
+    details: undefined,
+    severity: mapSeverity(item.severity),
+    meta: {
+      line: item.line || 0,
+      column: item.column || 0,
+      ruleId: item.ruleId
+    }
+  }));
+}
+
+/**
+ * Parse Pytest output into FailureItem array
+ */
+export function parsePytestOutput(pytestOutput: any[]): FailureItem[] {
+  return pytestOutput.map((item, index) => ({
+    tool: 'pytest',
+    path: undefined,
+    message: item.message || 'Test failure',
+    details: undefined,
+    severity: 'error',
+    meta: {
+      type: item.type,
+      line: item.line || 0
+    }
+  }));
+}
+
+/**
+ * Parse Clippy output into FailureItem array
+ */
+export function parseClippyOutput(clippyOutput: any[]): FailureItem[] {
+  return clippyOutput.map((item, index) => ({
+    tool: 'clippy',
+    path: undefined,
+    message: item.message || 'Rust analysis warning',
+    details: undefined,
+    severity: mapSeverity(item.level),
+    meta: {
+      line: item.line || 0,
+      column: item.column || 0
+    }
+  }));
+}
+
+/**
+ * Generic parser that routes to specific parsers based on tool name
+ */
+export function parseFailureOutput(toolName: string, output: any[]): FailureItem[] {
+  switch (toolName.toLowerCase()) {
+    case 'eslint':
+      return parseESLintOutput(output);
+    case 'pytest':
+      return parsePytestOutput(output);
+    case 'clippy':
+      return parseClippyOutput(output);
+    default:
+      // Fallback: create basic FailureItems
+      return output.map((item, index) => ({
+        tool: toolName,
+        path: undefined,
+        message: typeof item === 'string' ? item : JSON.stringify(item),
+        details: undefined,
+        severity: 'error',
+        meta: {}
+      }));
+  }
+}
