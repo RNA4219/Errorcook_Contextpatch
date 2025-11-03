@@ -1,15 +1,13 @@
 /**
- * Standardized failure item schema for CI results
+ * Standardized failure item schema for CI results (compliant with SCHEMAS/failure_item.schema.json)
  */
 export interface FailureItem {
-  id: string;
   tool: string;
-  file: string;
-  line: number;
-  column: number;
+  path?: string;
   message: string;
-  severity: 'error' | 'warning' | 'info';
-  timestamp: string;
+  details?: string;
+  severity: 'error' | 'warning';
+  meta?: Record<string, any>;
 }
 
 /**
