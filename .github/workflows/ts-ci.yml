@@ -40,14 +40,14 @@ jobs:
         if: failure()
         run: |
           mkdir -p work/.ctxpack
-          npm --prefix contextpatch exec tsx src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
-          npm --prefix contextpatch exec tsx src/cli.ts triage   -p work/.ctxpack
-          npm --prefix contextpatch exec tsx src/cli.ts patch    -p work/.ctxpack
-          npm --prefix contextpatch exec tsx src/cli.ts validate -p work/.ctxpack
-          npm --prefix errorcook    exec tsx src/cli.ts smell    -p work/.ctxpack
-          npm --prefix errorcook    exec tsx src/cli.ts rank     -p work/.ctxpack
-          npm --prefix errorcook    exec tsx src/cli.ts propose  -p work/.ctxpack
-          npm --prefix errorcook    exec tsx src/cli.ts validate -p work/.ctxpack
+          cd contextpatch && npx tsx src/cli.ts detect   -p ../work/.ctxpack --from-artifact ../artifact/ci/
+          cd contextpatch && npx tsx src/cli.ts triage   -p ../work/.ctxpack
+          cd contextpatch && npx tsx src/cli.ts patch    -p ../work/.ctxpack
+          cd contextpatch && npx tsx src/cli.ts validate -p ../work/.ctxpack
+          cd errorcook && npx tsx src/cli.ts smell       -p ../work/.ctxpack
+          cd errorcook && npx tsx src/cli.ts rank        -p ../work/.ctxpack
+          cd errorcook && npx tsx src/cli.ts propose     -p ../work/.ctxpack
+          cd errorcook && npx tsx src/cli.ts validate    -p ../work/.ctxpack
       - name: Upload .ctxpack artifact
         if: always()
         uses: actions/upload-artifact@v4
