@@ -13,11 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node (npm cache)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
       - name: Install deps
         run: npm --prefix contextpatch install
       - name: Lint
@@ -39,17 +38,17 @@ jobs:
           echo "Repository structure:"
           ls -la
           # Process contextpatch commands
-          npx --prefix contextpatch tsx src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
-          npx --prefix contextpatch tsx src/cli.ts triage   -p work/.ctxpack
-          npx --prefix contextpatch tsx src/cli.ts patch    -p work/.ctxpack
-          npx --prefix contextpatch tsx src/cli.ts validate -p work/.ctxpack
+          npx --prefix contextpatch tsx contextpatch/src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
+          npx --prefix contextpatch tsx contextpatch/src/cli.ts triage   -p work/.ctxpack
+          npx --prefix contextpatch tsx contextpatch/src/cli.ts patch    -p work/.ctxpack
+          npx --prefix contextpatch tsx contextpatch/src/cli.ts validate -p work/.ctxpack
           # Process errorcook commands if available
           if [ -d "errorcook" ]; then
             echo "Processing errorcook commands..."
-            npx --prefix errorcook tsx src/cli.ts smell       -p work/.ctxpack
-            npx --prefix errorcook tsx src/cli.ts rank        -p work/.ctxpack
-            npx --prefix errorcook tsx src/cli.ts propose     -p work/.ctxpack
-            npx --prefix errorcook tsx src/cli.ts validate    -p work/.ctxpack
+            npx --prefix errorcook tsx errorcook/src/cli.ts smell       -p work/.ctxpack
+            npx --prefix errorcook tsx errorcook/src/cli.ts rank        -p work/.ctxpack
+            npx --prefix errorcook tsx errorcook/src/cli.ts propose     -p work/.ctxpack
+            npx --prefix errorcook tsx errorcook/src/cli.ts validate    -p work/.ctxpack
           else
             echo "errorcook directory not found, skipping errorcook commands"
           fi
@@ -68,11 +67,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node (npm cache)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
       - name: Install deps
         run: npm --prefix errorcook install
       - name: Lint
@@ -94,17 +92,17 @@ jobs:
           echo "Repository structure:"
           ls -la
           # Process errorcook commands
-          npx --prefix errorcook tsx src/cli.ts smell       -p work/.ctxpack
-          npx --prefix errorcook tsx src/cli.ts rank        -p work/.ctxpack
-          npx --prefix errorcook tsx src/cli.ts propose     -p work/.ctxpack
-          npx --prefix errorcook tsx src/cli.ts validate    -p work/.ctxpack
+          npx --prefix errorcook tsx errorcook/src/cli.ts smell       -p work/.ctxpack
+          npx --prefix errorcook tsx errorcook/src/cli.ts rank        -p work/.ctxpack
+          npx --prefix errorcook tsx errorcook/src/cli.ts propose     -p work/.ctxpack
+          npx --prefix errorcook tsx errorcook/src/cli.ts validate    -p work/.ctxpack
           # Process contextpatch commands if available
           if [ -d "contextpatch" ]; then
             echo "Processing contextpatch commands..."
-            npx --prefix contextpatch tsx src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
-            npx --prefix contextpatch tsx src/cli.ts triage   -p work/.ctxpack
-            npx --prefix contextpatch tsx src/cli.ts patch    -p work/.ctxpack
-            npx --prefix contextpatch tsx src/cli.ts validate -p work/.ctxpack
+            npx --prefix contextpatch tsx contextpatch/src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
+            npx --prefix contextpatch tsx contextpatch/src/cli.ts triage   -p work/.ctxpack
+            npx --prefix contextpatch tsx contextpatch/src/cli.ts patch    -p work/.ctxpack
+            npx --prefix contextpatch tsx contextpatch/src/cli.ts validate -p work/.ctxpack
           else
             echo "contextpatch directory not found, skipping contextpatch commands"
           fi
