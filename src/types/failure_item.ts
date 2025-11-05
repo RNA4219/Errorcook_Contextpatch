@@ -11,6 +11,29 @@ export interface FailureItem {
 }
 
 /**
+ * Triage result from LLM analysis (compliant with SCHEMAS/output.schema.json)
+ */
+export interface TriageResult {
+  hypothesis: string;
+  suspects: Array<{
+    file: string;
+    line?: number;
+    reason: string;
+  }>;
+  patch: {
+    unified_diff: string;
+    files_changed?: number;
+    lines_added?: number;
+    lines_removed?: number;
+  };
+  tests: Array<{
+    path: string;
+    content: string;
+    purpose: string;
+  }>;
+}
+
+/**
  * Triage result from LLM analysis
  */
 export interface TriageResult {
