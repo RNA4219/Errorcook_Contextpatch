@@ -1,0 +1,39 @@
+name: Security CI
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        description: 'Programming language to analyze'
+        required: true
+        type: string
+    secrets:
+      inherit: [' secrets']
+
+jobs:
+  security-analysis:
+    permissions:
+      contents: read
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup language
+        run: |
+          if [ "${{ inputs.language }}" = "javascript" ] || [ "${{ inputs.language }}" = "typescript" ]; then
+            npm ci
+          elif [ "${{ inputs.language }}" = "python" ]; then
+            pip install -r requirements.txt
+          fi
+          
+      - name: Run security analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ inputs.language }}
+          
+      - name: Perform security scan
+        uses: github/codeql-action/perform-scan@v2
+        with:
+          category: security
