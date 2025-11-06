@@ -15,7 +15,8 @@ import { parseRuff } from "./parsers/ruff.js";
 import { parseClippy } from "./parsers/clippy.js";
 
 // Import LLM functions
-import { LLMClient, buildTriagePrompt } from "./llm/index.js";
+import { createLLMClient } from "./llm/index.js";
+import { buildTriagePrompt } from "./prompts/triage.js";
 
 // Import validation function
 import { validateOutput } from "./prompts/validateOutput.js";
@@ -230,7 +231,7 @@ async function triage(base: string, artifactDir: string) {
   const userPrompt = buildTriagePrompt(failureItems);
 
   // Create LLM client and call the triage prompt
-  const llm = new LLMClient({ provider: 'test' }); // In production, would use real provider
+  const llm = createLLMClient({ provider: 'test' }); // In production, would use real provider
   const response = await llm.callPrompt(
     "You are a code repair assistant. Analyze the provided CI failures and generate a hypothesis, suspect files, patch, and test cases.",
     userPrompt

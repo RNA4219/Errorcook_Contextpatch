@@ -1,5 +1,8 @@
 // SchemaValidator.ts
-// Original error: 'e' is of type 'unknown'
+interface ValidationResult {
+  valid: boolean;
+  errors?: string[];
+}
 
 interface ValidationOptions {
   strict?: boolean;
@@ -7,19 +10,20 @@ interface ValidationOptions {
 }
 
 class SchemaValidator {
-  validate(data: any, schema: any, options?: ValidationOptions): boolean {
+  validate(data: any, schema: any, options?: ValidationOptions): ValidationResult {
     try {
       // Example validation implementation
       this.performValidation(data, schema, options);
-      return true;
+      return { valid: true };
     } catch (e: unknown) { // Fixed: explicitly typed as 'unknown'
       // Fixed: Type guard to properly handle the unknown error type
       if (e instanceof Error) {
         console.error(`Validation error: ${e.message}`);
+        return { valid: false, errors: [e.message] };
       } else {
         console.error(`Validation error: ${String(e)}`);
+        return { valid: false, errors: [String(e)] };
       }
-      return false;
     }
   }
 
@@ -38,4 +42,12 @@ class SchemaValidator {
   }
 }
 
-export { SchemaValidator };
+// Import JSON schema
+import outputSchema from '../../../SCHEMAS/output.schema.json' assert { type: 'json' };
+
+function validateOutputSchema(data: any): ValidationResult {
+  const validator = new SchemaValidator();
+  return validator.validate(data, outputSchema);
+}
+
+export { SchemaValidator, validateOutputSchema, ValidationResult };
