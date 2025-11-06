@@ -253,10 +253,10 @@ async function triage(base: string, artifactDir: string) {
   }
 
   // Validate the output against the schema
-  const validationErrors = validateOutputSchema(output);
-  if (validationErrors.length > 0) {
+  const validationResult = validateOutputSchema(output);
+  if (!validationResult.valid && validationResult.errors && validationResult.errors.length > 0) {
     console.error(`Error: LLM output does not conform to schema:`);
-    validationErrors.forEach(err => console.error(`  - ${err}`));
+    validationResult.errors.forEach(err => console.error(`  - ${err}`));
     process.exit(1);
   }
 
@@ -296,22 +296,19 @@ function validate(base: string, artifactDir: string) {
   const triageData = JSON.parse(readFileSync(triagePath, 'utf8')) as OutputSchema;
   
   // Validate against the schema requirements
-  const errors = validateOutputSchema(triageData);
+  const validationResult = validateOutputSchema(triageData);
+  const errors = validationResult.errors || [];
   
   // Write validation results
   const tapPath = resolve(artifactDir, "ci", "validate.tap");
   ensureDir(resolve(artifactDir, "ci"));
   
-  if (errors.length === 0) {
-    const tap = `TAP version 13
-ok 1 - Schema validation passed
-ok 2 - Patch format is valid
-ok 3 - Has required fields (hypothesis, suspects, patch, tests)
-1..3
-`;
-    writeFileSync(tapPath, tap);
-    console.log(`validate: all checks passed, written to ${tapPath}`);
-  } else {
+  if (!validationResult.valid && errors.length === 0) {
+    // If not valid but no errors, add a general error
+    errors.push("Schema validation failed");
+  }
+  
+  if (!validationResult.valid && errors.length > 0) {
     const tap = `TAP version 13
 not ok 1 - Schema validation failed
 # Errors: ${errors.join(', ')}
@@ -321,6 +318,15 @@ not ok 1 - Schema validation failed
     console.error(`validate: failed, written to ${tapPath}`);
     errors.forEach(err => console.error(`  - ${err}`));
     process.exit(1);
+  } else {
+    const tap = `TAP version 13
+ok 1 - Schema validation passed
+ok 2 - Patch format is valid
+ok 3 - Has required fields (hypothesis, suspects, patch, tests)
+1..3
+`;
+    writeFileSync(tapPath, tap);
+    console.log(`validate: all checks passed, written to ${tapPath}`);
   }
 }
 
