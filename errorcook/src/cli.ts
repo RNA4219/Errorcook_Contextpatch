@@ -57,7 +57,7 @@ Options:
   -p <path> - Path to .ctxpack directory (default: ./work/.ctxpack)
 `;
 
-function arg(k: string, def?: string): string | undefined {
+function arg(k: string, def: string): string {
   const i = process.argv.indexOf(k);
   return i > -1 ? process.argv[i+1] : def;
 }
@@ -75,7 +75,7 @@ function main() {
     process.exit(0); 
   }
 
-  const base = resolve(p || './work/.ctxpack');
+  const base = resolve(p ?? "./work/.ctxpack");
   const smellDir = resolve(base, "smell");
   const artifact = resolve(base, "artifact");
   ensureDir(smellDir); 
