@@ -1,4 +1,4 @@
-import { Failure, ParseResult, failure } from './types';
+import { Failure, ParseResult, failure } from './types.js';
 
 /** Minimal `go test` parser for FAIL blocks. */
 export function parseGoTest(text: string): ParseResult {
