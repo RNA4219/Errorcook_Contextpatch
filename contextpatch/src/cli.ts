@@ -255,7 +255,7 @@ async function triage(base: string, artifactDir: string) {
   const validationErrors = validateOutputSchema(output);
   if (validationErrors.length > 0) {
     console.error(`Error: LLM output does not conform to schema:`);
-    validationErrors.forEach(err => console.error(`  - ${err}`));
+    validationErrors.forEach((err: string) => console.error(`  - ${err}`));
     process.exit(1);
   }
 
@@ -295,7 +295,8 @@ function validate(base: string, artifactDir: string) {
   const triageData = JSON.parse(readFileSync(triagePath, 'utf8')) as OutputSchema;
   
   // Validate against the schema requirements
-  const errors = validateOutputSchema(triageData);
+  const validationResult = validateOutputAgainstSchema(triageData);
+  const errors = validationResult.valid ? [] : (validationResult.errors || ["Unknown validation error"]);
   
   // Write validation results
   const tapPath = resolve(artifactDir, "ci", "validate.tap");
@@ -318,7 +319,7 @@ not ok 1 - Schema validation failed
 `;
     writeFileSync(tapPath, tap);
     console.error(`validate: failed, written to ${tapPath}`);
-    errors.forEach(err => console.error(`  - ${err}`));
+    errors.forEach((err: string) => console.error(`  - ${err}`));
     process.exit(1);
   }
 }
