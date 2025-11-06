@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { test, expect } from 'vitest';
 import { parseGoTest } from '../../src/parsers/go';
 
 test('parse go test: FAIL block', () => {

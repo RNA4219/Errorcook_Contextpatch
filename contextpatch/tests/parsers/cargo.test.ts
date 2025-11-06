@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { test, expect } from 'vitest';
 import { parseCargo } from '../../src/parsers/cargo';
 
 test('parse cargo test: panic locations', () => {

@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { test, expect } from 'vitest';
 import { parsePytest } from '../../src/parsers/pytest';
 
 test('parse pytest: FAILED lines', () => {

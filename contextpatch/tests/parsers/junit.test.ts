@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { test, expect } from 'vitest';
 import { parseJUnit } from '../../src/parsers/junit';
 
 test('parse JUnit: finds <failure> under testcase', () => {

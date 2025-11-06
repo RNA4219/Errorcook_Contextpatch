@@ -9,5 +9,5 @@ test("smell→rank→propose→validate pipeline", () => {
   run("node ./src/cli.ts rank -p ./work/.ctxpack");
   run("node ./src/cli.ts propose -p ./work/.ctxpack");
   run("node ./src/cli.ts validate -p ./work/.ctxpack");
-  expect(existsSync("./work/.ctxpack/smell/refactor_proposal.md")).toBe(true);
+  expect(existsSync("./work/.ctxpack/smell/refactor_proposals.md")).toBe(true);
 });
