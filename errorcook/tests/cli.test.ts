@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { test, expect } from "vitest";
 
 const run = (cmd: string) => execSync(cmd, { stdio: "pipe" }).toString();
 
