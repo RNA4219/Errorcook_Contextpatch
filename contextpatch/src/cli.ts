@@ -8,7 +8,7 @@ Commands:
   detect  triage  patch  validate  summarize  package
 `;
 
-function arg(k: string, def?: string) {
+function arg(k: string, def: string): string {
   const i = process.argv.indexOf(k);
   return i > -1 ? process.argv[i+1] : def;
 }
@@ -22,7 +22,7 @@ function main() {
   const p = arg("-p", "./work/.ctxpack");
   if (!cmd) { console.log(usage); process.exit(0); }
 
-  const base = resolve(p);
+  const base = resolve(p || "./work/.ctxpack");
   ensureDir(base);
   const artifact = resolve(base, "artifact");
   ensureDir(artifact);
