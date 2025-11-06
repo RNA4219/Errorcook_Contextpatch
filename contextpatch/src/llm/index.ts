@@ -35,16 +35,6 @@ class OpenAIClient implements LLMClient {
   
   async call(options: CallOptions): Promise<LLMResult> {
     // Implementation would depend on provider
-    try {
-      const response = await this.generate(options.prompt);
-      return { success: true, content: response };
-    } catch (error) {
-      return { success: false, error: (error as Error).message };
-    }
-  }
-
-  async generate(prompt: string): Promise<string> {
-    // Implementation would depend on provider
     return `OpenAI response for: ${prompt}`;
   }
 
@@ -194,4 +184,4 @@ Please provide:
 4. Any additional test cases that might be needed`;
 }
 
-
+export { LLMClientWrapper as LLMClient, LLMConfig, defaultConfig, buildTriagePrompt };
