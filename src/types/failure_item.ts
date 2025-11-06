@@ -31,17 +31,11 @@ export interface TriageResult {
     content: string;
     purpose: string;
   }>;
-}
-
-/**
- * Triage result from LLM analysis
- */
-export interface TriageResult {
-  id: string;
-  classification: string;
-  rootCause: string;
-  fixRecommendation: string;
-  timestamp: string;
+  id?: string;
+  classification?: string;
+  rootCause?: string;
+  fixRecommendation?: string;
+  timestamp?: string;
 }
 
 /**

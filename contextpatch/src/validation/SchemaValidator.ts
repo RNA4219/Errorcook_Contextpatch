@@ -1,4 +1,164 @@
 // SchemaValidator.ts
+import Ajv from 'ajv';
+
+// Load schemas directly
+const outputSchema = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "errorcook.output",
+  "type": "object",
+  "required": [
+    "hypothesis",
+    "suspects",
+    "patch",
+    "tests"
+  ],
+  "properties": {
+    "hypothesis": {
+      "type": "string",
+      "minLength": 20
+    },
+    "suspects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "patch": {
+      "type": "object",
+      "required": [
+        "unified_diff"
+      ],
+      "properties": {
+        "unified_diff": {
+          "type": "string",
+          "minLength": 10
+        },
+        "files_changed": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lines_added": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lines_removed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "content"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 10
+          },
+          "purpose": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+};
+
+const failureItemSchema = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "errorcook.failure_item",
+  "type": "object",
+  "required": [
+    "tool",
+    "message"
+  ],
+  "properties": {
+    "tool": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "error",
+        "warning"
+      ]
+    },
+    "meta": {
+      "type": "object"
+    }
+  }
+};
+
+const configSchema = {
+  "type": "object",
+  "properties": {
+    "objective": {},
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_files": {
+          "type": "number",
+          "default": 5
+        },
+        "max_lines": {
+          "type": "number",
+          "default": 60
+        },
+        "timeout_sec": {
+          "type": "number",
+          "default": 900
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "properties": {
+        "ci_dir": {
+          "type": "string"
+        },
+        "repo_root": {
+          "type": "string"
+        },
+        "birdseye_index": {
+          "type": "string"
+        }
+      }
+    }
+  }
+};
+
 interface ValidationResult {
   valid: boolean;
   errors?: string[];
@@ -9,40 +169,27 @@ interface ValidationOptions {
   allowUnknown?: boolean;
 }
 
-// Define the same OutputSchema interface that's in cli.ts
-interface OutputSchema {
-  hypothesis: string;
-  suspects: Array<{
-    file: string;
-    line?: number;
-    reason?: string;
-  }>;
-  patch: {
-    unified_diff: string;
-    files_changed?: number;
-    lines_added?: number;
-    lines_removed?: number;
-  };
-  tests: Array<{
-    path: string;
-    content: string;
-    purpose?: string;
-  }>;
-}
-
-interface ValidationResult {
-  valid: boolean;
-  errors?: string[];
-}
-
 class SchemaValidator {
+  private ajv: Ajv;
+
+  constructor() {
+    this.ajv = new Ajv({ allErrors: true, strict: false });
+  }
+
   validate(data: any, schema: any, options?: ValidationOptions): ValidationResult {
     try {
-      // Example validation implementation
-      this.performValidation(data, schema, options);
+      const validateFn = this.ajv.compile(schema);
+      const valid = validateFn(data);
+      
+      if (!valid && validateFn.errors) {
+        const errors = validateFn.errors.map(error => 
+          `${error.instancePath || 'root'}: ${error.message || 'Validation error'}`
+        );
+        return { valid: false, errors };
+      }
+      
       return { valid: true };
-    } catch (e: unknown) { // Fixed: explicitly typed as 'unknown'
-      // Fixed: Type guard to properly handle the unknown error type
+    } catch (e: unknown) {
       if (e instanceof Error) {
         console.error(`Validation error: ${e.message}`);
         return { valid: false, errors: [e.message] };
@@ -53,27 +200,38 @@ class SchemaValidator {
     }
   }
 
-  private performValidation(data: any, schema: any, options?: ValidationOptions): void {
-    // Implementation would go here
-    if (!data || !schema) {
-      throw new Error('Data and schema are required');
-    }
-    
-    // Basic validation logic would be implemented here
-    Object.keys(schema).forEach(key => {
-      if (schema[key].required && data[key] === undefined) {
-        throw new Error(`Required field ${key} is missing`);
-      }
-    });
+  validateOutputSchema(data: any): ValidationResult {
+    return this.validate(data, outputSchema);
+  }
+
+  validateFailureItemSchema(data: any): ValidationResult {
+    return this.validate(data, failureItemSchema);
+  }
+
+  validateConfigSchema(data: any): ValidationResult {
+    return this.validate(data, configSchema);
   }
 }
 
-// Import JSON schema
-import outputSchema from '../../../SCHEMAS/output.schema.json' assert { type: 'json' };
+// Create a singleton instance
+const schemaValidator = new SchemaValidator();
 
 function validateOutputSchema(data: any): ValidationResult {
-  const validator = new SchemaValidator();
-  return validator.validate(data, outputSchema);
+  return schemaValidator.validateOutputSchema(data);
 }
 
-export { SchemaValidator, validateOutputSchema, ValidationResult };
+function validateFailureItem(data: any): ValidationResult {
+  return schemaValidator.validateFailureItemSchema(data);
+}
+
+function validateConfig(data: any): ValidationResult {
+  return schemaValidator.validateConfigSchema(data);
+}
+
+export { 
+  SchemaValidator, 
+  validateOutputSchema, 
+  validateFailureItem, 
+  validateConfig, 
+  ValidationResult 
+};
