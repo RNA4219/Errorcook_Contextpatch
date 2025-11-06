@@ -6,6 +6,31 @@ interface ValidationOptions {
   allowUnknown?: boolean;
 }
 
+interface OutputSchema {
+  hypothesis: string;
+  suspects: Array<{
+    file: string;
+    line?: number;
+    reason?: string;
+  }>;
+  patch: {
+    unified_diff: string;
+    files_changed?: number;
+    lines_added?: number;
+    lines_removed?: number;
+  };
+  tests: Array<{
+    path: string;
+    content: string;
+    purpose?: string;
+  }>;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
 class SchemaValidator {
   validate(data: any, schema: any, options?: ValidationOptions): boolean {
     try {
@@ -36,6 +61,49 @@ class SchemaValidator {
       }
     });
   }
+}
+
+// Function to validate output schema specifically for the contextpatch tool
+export function validateOutputSchema(data: OutputSchema): string[] {
+  const errors: string[] = [];
+  
+  // Check required top-level fields
+  if (!data.hypothesis || typeof data.hypothesis !== 'string') {
+    errors.push('hypothesis is required and must be a string');
+  }
+  
+  if (!data.suspects || !Array.isArray(data.suspects)) {
+    errors.push('suspects is required and must be an array');
+  } else {
+    data.suspects.forEach((suspect, index) => {
+      if (!suspect.file || typeof suspect.file !== 'string') {
+        errors.push(`suspects[${index}].file is required and must be a string`);
+      }
+    });
+  }
+  
+  if (!data.patch || typeof data.patch !== 'object') {
+    errors.push('patch is required and must be an object');
+  } else {
+    if (!data.patch.unified_diff || typeof data.patch.unified_diff !== 'string') {
+      errors.push('patch.unified_diff is required and must be a string');
+    }
+  }
+  
+  if (!data.tests || !Array.isArray(data.tests)) {
+    errors.push('tests is required and must be an array');
+  } else {
+    data.tests.forEach((test, index) => {
+      if (!test.path || typeof test.path !== 'string') {
+        errors.push(`tests[${index}].path is required and must be a string`);
+      }
+      if (!test.content || typeof test.content !== 'string') {
+        errors.push(`tests[${index}].content is required and must be a string`);
+      }
+    });
+  }
+  
+  return errors;
 }
 
 export { SchemaValidator };
