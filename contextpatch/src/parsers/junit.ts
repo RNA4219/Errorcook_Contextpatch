@@ -1,4 +1,4 @@
-import { Failure, ParseResult, failure } from './types';
+import { Failure, ParseResult, failure } from './types.js';
 
 /** Minimal JUnit XML parser (regex-based, not full XML). */
 export function parseJUnit(xml: string): ParseResult {

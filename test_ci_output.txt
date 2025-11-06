@@ -1,0 +1,5 @@
+test_example.py::test_addition FAILED
+test_example.py::test_subtraction FAILED
+
+AssertionError: assert 2 + 2 == 5
+assert 5 - 3 == 3
