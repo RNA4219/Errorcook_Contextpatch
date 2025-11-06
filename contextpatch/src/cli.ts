@@ -230,7 +230,7 @@ async function triage(base: string, artifactDir: string) {
   const userPrompt = buildTriagePrompt(failureItems);
 
   // Create LLM client and call the triage prompt
-  const llm = new LLMClient({ provider: 'test' }); // In production, would use real provider
+  const llm = new LLMClient({ provider: 'local' }); // Using local provider for testing
   const response = await llm.callPrompt(
     "You are a code repair assistant. Analyze the provided CI failures and generate a hypothesis, suspect files, patch, and test cases.",
     userPrompt
