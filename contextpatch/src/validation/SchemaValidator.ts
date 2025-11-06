@@ -6,6 +6,7 @@ interface ValidationOptions {
   allowUnknown?: boolean;
 }
 
+// Define the same OutputSchema interface that's in cli.ts
 interface OutputSchema {
   hypothesis: string;
   suspects: Array<{
@@ -63,16 +64,14 @@ class SchemaValidator {
   }
 }
 
-// Function to validate the output schema specifically for contextpatch
 function validateOutputSchema(data: OutputSchema): ValidationResult {
   const errors: string[] = [];
   
-  // Validate hypothesis
+  // Validate required fields
   if (!data.hypothesis || typeof data.hypothesis !== 'string') {
     errors.push('hypothesis is required and must be a string');
   }
   
-  // Validate suspects
   if (!data.suspects || !Array.isArray(data.suspects)) {
     errors.push('suspects is required and must be an array');
   } else {
@@ -84,7 +83,6 @@ function validateOutputSchema(data: OutputSchema): ValidationResult {
     }
   }
   
-  // Validate patch
   if (!data.patch || typeof data.patch !== 'object') {
     errors.push('patch is required and must be an object');
   } else {
@@ -93,7 +91,6 @@ function validateOutputSchema(data: OutputSchema): ValidationResult {
     }
   }
   
-  // Validate tests
   if (!data.tests || !Array.isArray(data.tests)) {
     errors.push('tests is required and must be an array');
   } else {
@@ -107,7 +104,7 @@ function validateOutputSchema(data: OutputSchema): ValidationResult {
       }
     }
   }
-
+  
   return {
     valid: errors.length === 0,
     errors: errors.length > 0 ? errors : undefined

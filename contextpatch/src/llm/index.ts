@@ -152,6 +152,25 @@ class LLMClientWrapper {
   async callPrompt(systemPrompt: string, userPrompt: string, options?: Partial<CallOptions>): Promise<LLMResult> {
     return this.client.callPrompt(systemPrompt, userPrompt, options);
   }
+
+  async callPrompt(systemPrompt: string, userPrompt: string): Promise<{ success: boolean; content?: string; error?: string }> {
+    try {
+      // This is a placeholder implementation that combines the prompts
+      // In a real implementation, this would call the actual LLM provider
+      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+      const response = await this.generate(fullPrompt);
+      
+      return {
+        success: true,
+        content: response
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
 }
 
 // Example configuration - making sure no duplicate keys
@@ -161,7 +180,7 @@ const defaultConfig: LLMConfig = {
   endpoint: 'http://localhost:11434/api/generate'
 };
 
-// Define the FailureItem interface to match the one in cli.ts
+// Type definition for failure items
 interface FailureItem {
   tool: string;
   path?: string;
@@ -171,47 +190,24 @@ interface FailureItem {
   meta?: Record<string, any>;
 }
 
-// Function to build triage prompt from failure items
-function buildTriagePrompt(failures: FailureItem[]): string {
-  const failuresText = failures.map(failure => {
-    return `Tool: ${failure.tool}
-Path: ${failure.path || 'N/A'}
-Message: ${failure.message}
-Details: ${failure.details || 'N/A'}
-Severity: ${failure.severity || 'N/A'}
-Meta: ${JSON.stringify(failure.meta || {})}
-`;
-  }).join('\n---\n');
+function buildTriagePrompt(failureItems: FailureItem[]): string {
+  return `Analyze the following CI failures and provide a hypothesis, suspected files, and suggested fixes:
 
-  return `Analyze the following CI failures and generate a structured JSON response with a hypothesis, suspect files, patch, and test cases.
+${failureItems.map(item => 
+  `Tool: ${item.tool}
+Path: ${item.path || 'N/A'}
+Message: ${item.message}
+Details: ${item.details || 'N/A'}
+Severity: ${item.severity || 'N/A'}
 
-Failures:
-${failuresText}
+`
+).join('\n')}
 
-Provide your response as a JSON object with the following structure:
-{
-  "hypothesis": "string - A detailed hypothesis about the root cause",
-  "suspects": [
-    {
-      "file": "string - The suspected file path",
-      "line": "number - The suspected line number (optional)",
-      "reason": "string - The reason this file is suspected (optional)"
-    }
-  ],
-  "patch": {
-    "unified_diff": "string - The proposed patch in unified diff format",
-    "files_changed": "number - Number of files changed (optional)",
-    "lines_added": "number - Number of lines added (optional)",
-    "lines_removed": "number - Number of lines removed (optional)"
-  },
-  "tests": [
-    {
-      "path": "string - Path for new/modified test file",
-      "content": "string - Content of the test",
-      "purpose": "string - Purpose of this test (optional)"
-    }
-  ]
-}`;
+Please provide:
+1. A hypothesis about what's causing the failures
+2. A list of suspect files that might need to be changed
+3. A suggested patch in unified diff format
+4. Any additional test cases that might be needed`;
 }
 
 export { LLMClient, LLMConfig, defaultConfig, buildTriagePrompt };
