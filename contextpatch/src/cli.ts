@@ -83,7 +83,10 @@ Options:
 
 function arg(k: string, def?: string): string | undefined {
   const i = process.argv.indexOf(k);
-  return i > -1 ? process.argv[i+1] : def;
+  if (i > -1 && i + 1 < process.argv.length) {
+    return process.argv[i + 1];
+  }
+  return def;
 }
 
 function ensureDir(p: string) {
@@ -100,7 +103,7 @@ async function main() {
     process.exit(0); 
   }
 
-  const base = resolve(p ?? "./work/.ctxpack");
+  const base = resolve(p!); // Non-null assertion since default is provided
   ensureDir(base);
   const artifact = resolve(base, "artifact");
   ensureDir(artifact);

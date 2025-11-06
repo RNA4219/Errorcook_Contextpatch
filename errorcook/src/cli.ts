@@ -75,7 +75,7 @@ function main() {
     process.exit(0); 
   }
 
-  const base = resolve(p ?? "./work/.ctxpack");
+  const base = resolve(p!); // Non-null assertion since we provide a default
   const smellDir = resolve(base, "smell");
   const artifact = resolve(base, "artifact");
   ensureDir(smellDir); 
