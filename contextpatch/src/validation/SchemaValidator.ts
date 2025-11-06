@@ -9,6 +9,32 @@ interface ValidationOptions {
   allowUnknown?: boolean;
 }
 
+// Define the same OutputSchema interface that's in cli.ts
+interface OutputSchema {
+  hypothesis: string;
+  suspects: Array<{
+    file: string;
+    line?: number;
+    reason?: string;
+  }>;
+  patch: {
+    unified_diff: string;
+    files_changed?: number;
+    lines_added?: number;
+    lines_removed?: number;
+  };
+  tests: Array<{
+    path: string;
+    content: string;
+    purpose?: string;
+  }>;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors?: string[];
+}
+
 class SchemaValidator {
   validate(data: any, schema: any, options?: ValidationOptions): ValidationResult {
     try {
