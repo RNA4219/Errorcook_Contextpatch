@@ -33,10 +33,10 @@ class OpenAIClient implements LLMClient {
     this.config = config;
   }
   
-  async callPrompt(systemPrompt: string, userPrompt: string): Promise<{ success: boolean; content?: string; error?: string }> {
+  async call(options: CallOptions): Promise<LLMResult> {
     // Implementation would depend on provider
     try {
-      const response = await this.generate(systemPrompt + "\n\n" + userPrompt);
+      const response = await this.generate(options.prompt);
       return { success: true, content: response };
     } catch (error) {
       return { success: false, error: (error as Error).message };
@@ -45,7 +45,7 @@ class OpenAIClient implements LLMClient {
 
   async generate(prompt: string): Promise<string> {
     // Implementation would depend on provider
-    return { success: true, content: `OpenAI response for: ${options.prompt}` };
+    return `OpenAI response for: ${prompt}`;
   }
 
   async callPrompt(systemPrompt: string, userPrompt: string, options?: Partial<CallOptions>): Promise<LLMResult> {
@@ -152,26 +152,10 @@ class LLMClientWrapper {
   async callPrompt(systemPrompt: string, userPrompt: string, options?: Partial<CallOptions>): Promise<LLMResult> {
     return this.client.callPrompt(systemPrompt, userPrompt, options);
   }
-
-  async callPrompt(systemPrompt: string, userPrompt: string): Promise<{ success: boolean; content?: string; error?: string }> {
-    try {
-      // This is a placeholder implementation that combines the prompts
-      // In a real implementation, this would call the actual LLM provider
-      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-      const response = await this.generate(fullPrompt);
-      
-      return {
-        success: true,
-        content: response
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
 }
+
+// Export the LLMClientWrapper as LLMClient
+export { LLMClientWrapper as LLMClient, LLMConfig, defaultConfig, buildTriagePrompt };
 
 // Example configuration - making sure no duplicate keys
 const defaultConfig: LLMConfig = {
@@ -210,4 +194,4 @@ Please provide:
 4. Any additional test cases that might be needed`;
 }
 
-export { LLMClient, LLMConfig, defaultConfig, buildTriagePrompt };
+
