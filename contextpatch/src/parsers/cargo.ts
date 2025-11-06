@@ -1,4 +1,4 @@
-import { Failure, ParseResult, failure } from './types';
+import { Failure, ParseResult, failure } from './types.js';
 
 /** Minimal `cargo test` parser capturing panic locations. */
 export function parseCargo(text: string): ParseResult {
