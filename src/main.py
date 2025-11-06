@@ -40,7 +40,7 @@ class ProcessingLimits:
     max_files: int = 5
     max_lines: int = 60
     timeout_sec: int = 900
-    roi_budget: int = 40  # Default ROI budget
+    roi_budget: float = 40.0  # Default ROI budget
 
 class CIParserAdapter:
     """Adapter for parsing various CI tool outputs into standardized FailureItem format"""
@@ -317,9 +317,9 @@ Generate valid JSON output following the schema above."""
 class ROIManager:
     """ROI budget management per workflow-cookbook-compact/config/budget.yaml"""
     
-    def __init__(self, default_budget: int = 40):
+    def __init__(self, default_budget: float = 40.0):
         self.default_budget = default_budget
-        self.roi_budget = int(os.environ.get('ROI_BUDGET', str(default_budget)))
+        self.roi_budget = float(os.environ.get('ROI_BUDGET', str(default_budget)))
     
     def calculate_effort_score(self, failure_count: int, complexity_score: float) -> float:
         """Calculate effort score for ROI calculation"""
