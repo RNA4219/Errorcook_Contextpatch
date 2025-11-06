@@ -1,16 +1,8 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
 
-// Types based on schema definitions
-interface FailureItem {
-  tool: string;
-  path?: string;
-  message: string;
-  details?: string;
-  severity?: "error" | "warning";
-  meta?: Record<string, any>;
-}
+
 
 interface SmellReport {
   long_functions: Array<{
@@ -83,7 +75,7 @@ function main() {
 
   switch (cmd) {
     case "smell": {
-      smell(base, smellDir, artifact);
+      smell(base, smellDir);
       break;
     }
     case "rank": {
@@ -108,7 +100,7 @@ function main() {
   }
 }
 
-function smell(base: string, smellDir: string, artifactDir: string) {
+function smell(base: string, smellDir: string) {
   // For now, create a basic smell report
   // In a real implementation, this would analyze code files for smells
   
@@ -181,17 +173,20 @@ function rank(base: string, smellDir: string, artifactDir: string) {
 function calculateRoi(type: string, ...params: number[]): number {
   // Simplified ROI calculation based on issue type and severity
   switch (type) {
-    case 'long-function':
+    case 'long-function': {
       // Higher complexity and line count = higher ROI for refactoring
       const complexity = params[0] || 0;
       const lines = params[1] || 0;
       return Math.min(1.0, (complexity * 0.1 + lines * 0.01) / 10);
-    case 'deep-nesting':
+    }
+    case 'deep-nesting': {
       const depth = params[0] || 0;
       return Math.min(1.0, depth * 0.15);
-    case 'duplication':
+    }
+    case 'duplication': {
       const ratio = params[0] || 0;
       return Math.min(1.0, ratio * 3); // High ROI for duplication fixes
+    }
     default:
       return 0.5; // Default medium ROI
   }
@@ -335,7 +330,7 @@ function nightshift(base: string, smellDir: string, artifactDir: string) {
   
   try {
     // Run smell detection
-    smell(base, smellDir, artifactDir);
+    smell(base, smellDir);
     
     // Run ranking
     rank(base, smellDir, artifactDir);

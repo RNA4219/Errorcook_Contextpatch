@@ -15,12 +15,13 @@ import { parseRuff } from "./parsers/ruff.js";
 import { parseClippy } from "./parsers/clippy.js";
 
 // Import LLM functions
-import { LLMClient, buildTriagePrompt } from "./llm/index.js";
+import { LLMClient } from "./llm/index.js";
+import { buildTriagePrompt } from "./llm/triagePrompt.js";
 
 // Import validation function
 import { validateOutput } from "./prompts/validateOutput.js";
 // Import schema validator
-import { validateOutputSchema as validateOutputAgainstSchema } from "./validation/SchemaValidator.js";
+import { validateOutputSchema } from "./validation/SchemaValidator.js";
 
 // Types based on schema definitions
 interface FailureItem {
@@ -323,14 +324,8 @@ not ok 1 - Schema validation failed
   }
 }
 
-function validateOutputSchema(data: OutputSchema): string[] {
-  const result = validateOutputAgainstSchema(data);
-  if (result.valid) {
-    return [];
-  } else {
-    return result.errors || ["Unknown validation error"];
-  }
-}
+// The validateOutputSchema is now imported directly from SchemaValidator.js
+// so we don't need to redefine it here
 
 function summarize(base: string, artifactDir: string) {
   // Read triage.json for the summary
