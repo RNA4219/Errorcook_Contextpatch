@@ -5,9 +5,11 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "outDir": "dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node", "vitest/globals"]
   },
   "include": [
-    "src"
+    "src",
+    "tests"
   ]
 }

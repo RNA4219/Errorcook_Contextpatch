@@ -22,7 +22,7 @@ function main() {
   const p = arg("-p", "./work/.ctxpack");
   if (!cmd) { console.log(usage); process.exit(0); }
 
-  const base = resolve(p);
+  const base = resolve(p!); // Non-null assertion since we provide a default
   const smellDir = resolve(base, "smell");
   const artifact = resolve(base, "artifact");
   ensureDir(smellDir); ensureDir(artifact);
