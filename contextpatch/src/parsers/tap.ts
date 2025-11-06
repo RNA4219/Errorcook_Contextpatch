@@ -1,4 +1,4 @@
-import { Failure, ParseResult, failure } from './types';
+import { Failure, ParseResult, failure } from './types.js';
 
 /** Minimal TAP parser that extracts `not ok` lines as failures. */
 export function parseTAP(input: string): ParseResult {

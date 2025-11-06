@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { test, expect } from 'vitest';
 import { parseTAP } from '../../src/parsers/tap';
 
 test('parse TAP: extracts not ok as failures', () => {

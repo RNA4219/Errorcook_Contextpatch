@@ -1,4 +1,4 @@
-import { Failure, ParseResult, failure } from './types';
+import { Failure, ParseResult, failure } from './types.js';
 
 /** Minimal pytest text output parser for FAILED lines. */
 export function parsePytest(text: string): ParseResult {
