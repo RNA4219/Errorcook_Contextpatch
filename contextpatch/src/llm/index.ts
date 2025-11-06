@@ -35,7 +35,7 @@ class OpenAIClient implements LLMClient {
   
   async call(options: CallOptions): Promise<LLMResult> {
     // Implementation would depend on provider
-    return { success: true, content: `OpenAI response for: ${options.prompt}` };
+    return `OpenAI response for: ${prompt}`;
   }
 
   async callPrompt(systemPrompt: string, userPrompt: string, options?: Partial<CallOptions>): Promise<LLMResult> {
@@ -143,6 +143,9 @@ class LLMClientWrapper {
     return this.client.callPrompt(systemPrompt, userPrompt, options);
   }
 }
+
+// Export the LLMClientWrapper as LLMClient
+export { LLMClientWrapper as LLMClient, LLMConfig, defaultConfig, buildTriagePrompt };
 
 // Example configuration - making sure no duplicate keys
 const defaultConfig: LLMConfig = {
