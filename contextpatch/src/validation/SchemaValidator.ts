@@ -28,7 +28,7 @@ interface OutputSchema {
 
 interface ValidationResult {
   valid: boolean;
-  errors: string[];
+  errors?: string[];
 }
 
 class SchemaValidator {
@@ -63,25 +63,28 @@ class SchemaValidator {
   }
 }
 
-// Function to validate output schema specifically for the contextpatch tool
-export function validateOutputSchema(data: OutputSchema): string[] {
+// Function to validate the output schema specifically for contextpatch
+function validateOutputSchema(data: OutputSchema): ValidationResult {
   const errors: string[] = [];
   
-  // Check required top-level fields
+  // Validate hypothesis
   if (!data.hypothesis || typeof data.hypothesis !== 'string') {
     errors.push('hypothesis is required and must be a string');
   }
   
+  // Validate suspects
   if (!data.suspects || !Array.isArray(data.suspects)) {
     errors.push('suspects is required and must be an array');
   } else {
-    data.suspects.forEach((suspect, index) => {
+    for (let i = 0; i < data.suspects.length; i++) {
+      const suspect = data.suspects[i];
       if (!suspect.file || typeof suspect.file !== 'string') {
-        errors.push(`suspects[${index}].file is required and must be a string`);
+        errors.push(`suspects[${i}].file is required and must be a string`);
       }
-    });
+    }
   }
   
+  // Validate patch
   if (!data.patch || typeof data.patch !== 'object') {
     errors.push('patch is required and must be an object');
   } else {
@@ -90,20 +93,25 @@ export function validateOutputSchema(data: OutputSchema): string[] {
     }
   }
   
+  // Validate tests
   if (!data.tests || !Array.isArray(data.tests)) {
     errors.push('tests is required and must be an array');
   } else {
-    data.tests.forEach((test, index) => {
+    for (let i = 0; i < data.tests.length; i++) {
+      const test = data.tests[i];
       if (!test.path || typeof test.path !== 'string') {
-        errors.push(`tests[${index}].path is required and must be a string`);
+        errors.push(`tests[${i}].path is required and must be a string`);
       }
       if (!test.content || typeof test.content !== 'string') {
-        errors.push(`tests[${index}].content is required and must be a string`);
+        errors.push(`tests[${i}].content is required and must be a string`);
       }
-    });
+    }
   }
-  
-  return errors;
+
+  return {
+    valid: errors.length === 0,
+    errors: errors.length > 0 ? errors : undefined
+  };
 }
 
-export { SchemaValidator };
+export { SchemaValidator, validateOutputSchema };
