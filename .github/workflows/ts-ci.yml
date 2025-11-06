@@ -52,7 +52,21 @@ jobs:
           else
             echo "errorcook directory not found, skipping errorcook commands"
           fi
+          # Copy artifacts from where CLI commands wrote them to where detect command expects them
+          if [ -d "work/.ctxpack/artifact/ci/" ]; then
+            mkdir -p artifact/ci/
+            cp -r work/.ctxpack/artifact/ci/* artifact/ci/ 2>/dev/null || true
+          fi
           echo ".ctxpack generation completed successfully"
+      - name: Copy CI artifacts to standard location
+        if: failure()
+        run: |
+          set -e
+          # Copy artifacts from where errorcook wrote them to where contextpatch expects them
+          if [ -d "work/.ctxpack/artifact/ci/" ]; then
+            mkdir -p artifact/ci/
+            cp -r work/.ctxpack/artifact/ci/* artifact/ci/ 2>/dev/null || true
+          fi
       - name: Upload .ctxpack artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -98,6 +112,11 @@ jobs:
           npx --prefix errorcook tsx errorcook/src/cli.ts validate    -p work/.ctxpack
           # Process contextpatch commands if available
           if [ -d "contextpatch" ]; then
+            # Copy artifacts from where CLI commands wrote them to where detect command expects them
+            if [ -d "work/.ctxpack/artifact/ci/" ]; then
+              mkdir -p artifact/ci/
+              cp -r work/.ctxpack/artifact/ci/* artifact/ci/ 2>/dev/null || true
+            fi
             echo "Processing contextpatch commands..."
             npx --prefix contextpatch tsx contextpatch/src/cli.ts detect   -p work/.ctxpack --from-artifact artifact/ci/
             npx --prefix contextpatch tsx contextpatch/src/cli.ts triage   -p work/.ctxpack
@@ -107,6 +126,15 @@ jobs:
             echo "contextpatch directory not found, skipping contextpatch commands"
           fi
           echo ".ctxpack generation completed successfully"
+      - name: Copy CI artifacts to standard location
+        if: failure()
+        run: |
+          set -e
+          # Copy artifacts from where commands wrote them to where detect command expects them
+          if [ -d "work/.ctxpack/artifact/ci/" ]; then
+            mkdir -p artifact/ci/
+            cp -r work/.ctxpack/artifact/ci/* artifact/ci/ 2>/dev/null || true
+          fi
       - name: Upload .ctxpack artifact
         if: always()
         uses: actions/upload-artifact@v4
