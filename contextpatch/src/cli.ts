@@ -100,7 +100,7 @@ async function main() {
     process.exit(0); 
   }
 
-  const base = resolve(p);
+  const base = resolve(p ?? "./work/.ctxpack");
   ensureDir(base);
   const artifact = resolve(base, "artifact");
   ensureDir(artifact);

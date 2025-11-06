@@ -75,7 +75,7 @@ function main() {
     process.exit(0); 
   }
 
-  const base = resolve(p);
+  const base = resolve(p || './work/.ctxpack');
   const smellDir = resolve(base, "smell");
   const artifact = resolve(base, "artifact");
   ensureDir(smellDir); 
