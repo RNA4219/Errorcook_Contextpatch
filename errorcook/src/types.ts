@@ -1,52 +1,74 @@
-// Types based on JSON schemas
+/**
+ * Core types for ErrorCook
+ */
 
-export interface FailureItem {
-  tool: string;
-  path?: string;
-  message: string;
-  details?: string;
-  severity?: "error" | "warning";
-  meta?: Record<string, any>;
-}
-
-export interface Suspect {
-  file: string;
-  line?: number;
-  reason: string;
-}
-
-export interface Patch {
-  unified_diff: string;
-  files_changed?: number;
-  lines_added?: number;
-  lines_removed?: number;
-}
-
-export interface Test {
-  path: string;
-  content: string;
-  purpose?: string;
-}
-
-export interface Output {
-  hypothesis: string;
-  suspects: Suspect[];
-  patch: Patch;
-  tests: Test[];
-}
-
-// Additional types for the workflow
-export interface Ranking {
-  id: string;
-  roi: number;
-}
-
-export interface SmellReport {
-  long_functions: any[];
-  deep_nesting: any[];
+// Smell detection results
+interface SmellReport {
+  long_functions: string[];
+  deep_nesting: string[];
   dup_ratio: number;
 }
 
-export interface RefactorProposal {
-  [key: string]: any;
+// Ranking information for smells
+interface SmellRanking {
+  id: string;
+  roi: number; // Return on investment for fixing
 }
+
+// Refactor proposal
+interface RefactorProposal {
+  id: string;
+  title: string;
+  description: string;
+  files: string[];
+  estimatedEffort: number; // Effort score
+}
+
+// Generic failure item (from context with other modules)
+interface FailureItem {
+  type: string;
+  location?: string;
+  message: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  context?: Record<string, unknown>;
+}
+
+// Analysis result
+interface AnalysisResult {
+  smells: SmellReport;
+  rankings: SmellRanking[];
+  proposals: RefactorProposal[];
+}
+
+// Validation result
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
+// ErrorCook processing result
+interface ErrorCookResult {
+  analysis: AnalysisResult;
+  status: 'success' | 'partial' | 'failed';
+  message?: string;
+}
+
+// Configuration for processing
+interface ProcessConfig {
+  inputFile?: string;
+  outputDir?: string;
+  verbose?: boolean;
+  maxFiles?: number;
+  maxChanges?: number;
+}
+
+export type { 
+  SmellReport, 
+  SmellRanking, 
+  RefactorProposal, 
+  FailureItem, 
+  AnalysisResult, 
+  ValidationResult, 
+  ErrorCookResult, 
+  ProcessConfig 
+};

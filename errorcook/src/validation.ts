@@ -1,100 +1,122 @@
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
-import { validate } from "jsonschema";
-import { Output, FailureItem } from "./types";
+import { ErrorCookResult, AnalysisResult, ValidationResult, SmellReport } from './types';
 
-// Load JSON schema
-function loadSchema(schemaPath: string): any {
-  if (!existsSync(schemaPath)) {
-    throw new Error(`Schema file not found: ${schemaPath}`);
+/**
+ * Validation utilities for ErrorCook
+ */
+
+/**
+ * Validates an ErrorCookResult object
+ */
+function validateErrorCookResult(result: ErrorCookResult): ValidationResult {
+  const errors: string[] = [];
+
+  // Validate status
+  const validStatuses = ['success', 'partial', 'failed'];
+  if (!validStatuses.includes(result.status)) {
+    errors.push(`status must be one of: ${validStatuses.join(', ')}`);
   }
-  return JSON.parse(readFileSync(schemaPath, "utf-8"));
-}
 
-// Validate output against schema
-export function validateOutput(output: Output, schemaPath: string): { valid: boolean; errors: string[] } {
-  try {
-    const schema = loadSchema(schemaPath);
-    const validation = validate(output, schema);
-    
-    return {
-      valid: validation.errors.length === 0,
-      errors: validation.errors.map(error => 
-        `${error.property}: ${error.message}`
-      )
-    };
-  } catch (error) {
-    return {
-      valid: false,
-      errors: [`Schema validation error: ${error}`]
-    };
+  // Validate analysis if present
+  if (result.analysis) {
+    validateAnalysisResult(result.analysis).errors.forEach(error => {
+      errors.push(`analysis: ${error}`);
+    });
   }
-}
 
-// Validate failure items
-export function validateFailureItems(items: FailureItem[]): { valid: boolean; errors: string[] } {
-  const schema = loadSchema(resolve(process.cwd(), "SCHEMAS/failure_item.schema.json"));
-  const validation = validate(items, {
-    type: "array",
-    items: schema
-  });
-  
   return {
-    valid: validation.errors.length === 0,
-    errors: validation.errors.map(error => 
-      `${error.property}: ${error.message}`
-    )
+    isValid: errors.length === 0,
+    errors,
   };
 }
 
-// Validate configuration
-export function validateConfig(config: any): { valid: boolean; errors: string[] } {
-  const schema = loadSchema(resolve(process.cwd(), "SCHEMAS/config.schema.json"));
-  const validation = validate(config, schema);
-  
-  return {
-    valid: validation.errors.length === 0,
-    errors: validation.errors.map(error => 
-      `${error.property}: ${error.message}`
-    )
-  };
-}
+/**
+ * Validates an AnalysisResult object
+ */
+function validateAnalysisResult(analysis: AnalysisResult): ValidationResult {
+  const errors: string[] = [];
 
-// Check guardrails compliance
-export function checkGuardrails(output: Output): { compliant: boolean; violations: string[] } {
-  const violations: string[] = [];
-  
-  // Check hypothesis length
-  if (output.hypothesis.length < 20) {
-    violations.push("Hypothesis must be at least 20 characters long");
-  }
-  
-  // Check unified diff format
-  if (!output.patch.unified_diff.startsWith("--- a/") || 
-      !output.patch.unified_diff.includes("+++ b/") ||
-      !output.patch.unified_diff.includes("@@")) {
-    violations.push("Patch must be in unified diff format");
-  }
-  
-  // Check unified diff length
-  if (output.patch.unified_diff.length < 10) {
-    violations.push("Unified diff must be at least 10 characters long");
-  }
-  
-  // Check minimum tests
-  if (output.tests.length < 1) {
-    violations.push("At least one test is required");
-  }
-  
-  // Check test content length
-  for (const test of output.tests) {
-    if (test.content.length < 10) {
-      violations.push(`Test content must be at least 10 characters long: ${test.path}`);
+  // Validate smells
+  if (!analysis.smells) {
+    errors.push('smells is required');
+  } else {
+    if (!Array.isArray(analysis.smells.long_functions)) {
+      errors.push('smells.long_functions must be an array');
+    }
+    if (!Array.isArray(analysis.smells.deep_nesting)) {
+      errors.push('smells.deep_nesting must be an array');
+    }
+    if (typeof analysis.smells.dup_ratio !== 'number') {
+      errors.push('smells.dup_ratio must be a number');
     }
   }
-  
+
+  // Validate rankings
+  if (!Array.isArray(analysis.rankings)) {
+    errors.push('rankings must be an array');
+  } else {
+    for (let i = 0; i < analysis.rankings.length; i++) {
+      const ranking = analysis.rankings[i];
+      if (!ranking.id) {
+        errors.push(`rankings[${i}].id is required`);
+      }
+      if (typeof ranking.roi !== 'number') {
+        errors.push(`rankings[${i}].roi must be a number`);
+      }
+    }
+  }
+
+  // Validate proposals
+  if (!Array.isArray(analysis.proposals)) {
+    errors.push('proposals must be an array');
+  } else {
+    for (let i = 0; i < analysis.proposals.length; i++) {
+      const proposal = analysis.proposals[i];
+      if (!proposal.id) {
+        errors.push(`proposals[${i}].id is required`);
+      }
+      if (!proposal.title) {
+        errors.push(`proposals[${i}].title is required`);
+      }
+      if (!proposal.description) {
+        errors.push(`proposals[${i}].description is required`);
+      }
+      if (!Array.isArray(proposal.files)) {
+        errors.push(`proposals[${i}].files must be an array`);
+      }
+    }
+  }
+
   return {
-    compliant: violations.length === 0,
-    violations
+    isValid: errors.length === 0,
+    errors,
   };
 }
+
+/**
+ * Validates a smell report
+ */
+function validateSmellReport(report: SmellReport): ValidationResult {
+  const errors: string[] = [];
+
+  if (!report) {
+    errors.push('report is required');
+    return { isValid: false, errors };
+  }
+
+  if (!Array.isArray(report.long_functions)) {
+    errors.push('long_functions must be an array');
+  }
+  if (!Array.isArray(report.deep_nesting)) {
+    errors.push('deep_nesting must be an array');
+  }
+  if (typeof report.dup_ratio !== 'number') {
+    errors.push('dup_ratio must be a number');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
+export { validateErrorCookResult, validateAnalysisResult, validateSmellReport };
