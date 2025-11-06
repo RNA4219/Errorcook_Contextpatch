@@ -1,5 +1,8 @@
 // SchemaValidator.ts
-// Original error: 'e' is of type 'unknown'
+interface ValidationResult {
+  valid: boolean;
+  errors?: string[];
+}
 
 interface ValidationOptions {
   strict?: boolean;
@@ -33,19 +36,20 @@ interface ValidationResult {
 }
 
 class SchemaValidator {
-  validate(data: any, schema: any, options?: ValidationOptions): boolean {
+  validate(data: any, schema: any, options?: ValidationOptions): ValidationResult {
     try {
       // Example validation implementation
       this.performValidation(data, schema, options);
-      return true;
+      return { valid: true };
     } catch (e: unknown) { // Fixed: explicitly typed as 'unknown'
       // Fixed: Type guard to properly handle the unknown error type
       if (e instanceof Error) {
         console.error(`Validation error: ${e.message}`);
+        return { valid: false, errors: [e.message] };
       } else {
         console.error(`Validation error: ${String(e)}`);
+        return { valid: false, errors: [String(e)] };
       }
-      return false;
     }
   }
 
@@ -64,51 +68,12 @@ class SchemaValidator {
   }
 }
 
-function validateOutputSchema(data: OutputSchema): ValidationResult {
-  const errors: string[] = [];
-  
-  // Validate required fields
-  if (!data.hypothesis || typeof data.hypothesis !== 'string') {
-    errors.push('hypothesis is required and must be a string');
-  }
-  
-  if (!data.suspects || !Array.isArray(data.suspects)) {
-    errors.push('suspects is required and must be an array');
-  } else {
-    for (let i = 0; i < data.suspects.length; i++) {
-      const suspect = data.suspects[i];
-      if (!suspect.file || typeof suspect.file !== 'string') {
-        errors.push(`suspects[${i}].file is required and must be a string`);
-      }
-    }
-  }
-  
-  if (!data.patch || typeof data.patch !== 'object') {
-    errors.push('patch is required and must be an object');
-  } else {
-    if (!data.patch.unified_diff || typeof data.patch.unified_diff !== 'string') {
-      errors.push('patch.unified_diff is required and must be a string');
-    }
-  }
-  
-  if (!data.tests || !Array.isArray(data.tests)) {
-    errors.push('tests is required and must be an array');
-  } else {
-    for (let i = 0; i < data.tests.length; i++) {
-      const test = data.tests[i];
-      if (!test.path || typeof test.path !== 'string') {
-        errors.push(`tests[${i}].path is required and must be a string`);
-      }
-      if (!test.content || typeof test.content !== 'string') {
-        errors.push(`tests[${i}].content is required and must be a string`);
-      }
-    }
-  }
-  
-  return {
-    valid: errors.length === 0,
-    errors: errors.length > 0 ? errors : undefined
-  };
+// Import JSON schema
+import outputSchema from '../../../SCHEMAS/output.schema.json' assert { type: 'json' };
+
+function validateOutputSchema(data: any): ValidationResult {
+  const validator = new SchemaValidator();
+  return validator.validate(data, outputSchema);
 }
 
-export { SchemaValidator, validateOutputSchema };
+export { SchemaValidator, validateOutputSchema, ValidationResult };
