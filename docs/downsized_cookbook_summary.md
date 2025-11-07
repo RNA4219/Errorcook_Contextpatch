@@ -41,3 +41,11 @@ Downsized Cookbookは、大規模なWorkflow Cookbook Compactを軽量化した�
 
 - ErrorCook/ContextPatchとの連携を前提に設計
 - 軽量LLMでも処理可能なワークフローを構成
+
+## 実装サマリ
+
+ErrorCook ContextPatchユーティリティをPythonで実装しました。
+`src/errorcook/context_patch.py` に `apply_patch` 関数と `ContextPatchError` 例外を定義しています。
+`apply_patch` は、元の文字列内の指定されたテキストを新しいテキストに置き換える機能を提供し、オプションで前後のコンテキストを検証できます。
+この実装は、最小限の差分適用とテストを目的としています。
+`tests/test_context_patch.py` にて単体テストも追加し、基本的な置換、テキストが見つからない場合の例外、およびコンテキストガードの動作を確認しています。
