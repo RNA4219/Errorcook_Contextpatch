@@ -1,8 +1,8 @@
-import { Failure, ParseResult, failure } from './types.js';
+import { FailureItem, ParseResult, failure } from './types.js';
 
 /** Clippy error parser */
 export function parseClippy(text: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   const lines = text.split(/\r?\n/);
   // Look for Clippy error patterns
   let currentFile: string | undefined;
@@ -20,10 +20,14 @@ export function parseClippy(text: string): ParseResult {
             const primarySpan = jsonLine.message.spans.find((s: any) => s.is_primary);
             if (primarySpan) {
               failures.push(failure('clippy', {
-                file: primarySpan.file_name,
-                line: primarySpan.line_start,
-                col: primarySpan.column_start,
+                path: primarySpan.file_name,
                 message: jsonLine.message.message,
+                severity: 'error',
+                meta: {
+                  file: primarySpan.file_name,
+                  line: primarySpan.line_start,
+                  col: primarySpan.column_start
+                }
               }));
             }
           }
@@ -50,10 +54,14 @@ export function parseClippy(text: string): ParseResult {
             message.toLowerCase().includes('lint') ||
             isClippyRelated(message)) {
           failures.push(failure('clippy', {
-            file: file.trim(),
-            line: parseInt(lineNum),
-            col: parseInt(colNum),
+            path: file.trim(),
             message: message.trim(),
+            severity: 'error',
+            meta: {
+              file: file.trim(),
+              line: parseInt(lineNum),
+              col: parseInt(colNum)
+            }
           }));
         }
       }

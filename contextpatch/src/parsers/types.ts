@@ -1,24 +1,24 @@
-export type Failure = {
-  framework: string;
-  test?: string;
-  file?: string;
+export type FailureItem = {
+  tool: string;
+  path?: string;
   message: string;
-  line?: number;
-  col?: number;
+  details?: string;
+  severity?: 'error' | 'warning';
+  meta?: Record<string, unknown>;
 };
 
 export type ParseResult = {
   framework: string;
-  failures: Failure[];
+  failures: FailureItem[];
 };
 
-export function failure(framework: string, p: Partial<Failure>): Failure {
+export function failure(tool: string, p: Partial<FailureItem>): FailureItem {
   return {
-    framework,
+    tool,
     message: p.message ?? "",
-    test: p.test,
-    file: p.file,
-    line: p.line,
-    col: p.col,
+    path: p.path,
+    details: p.details,
+    severity: p.severity,
+    meta: p.meta ?? {},
   };
 }

@@ -1,13 +1,17 @@
-import { Failure, ParseResult, failure } from './types.js';
+import { FailureItem, ParseResult, failure } from './types.js';
 
 /** Minimal TAP parser that extracts `not ok` lines as failures. */
 export function parseTAP(input: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   const lines = input.split(/\r?\n/);
   for (const line of lines) {
     const m = /^not ok\s+\d+\s+(.*)$/.exec(line);
     if (m) {
-      failures.push(failure('tap', { test: m[1].trim(), message: 'test failed' }));
+      failures.push(failure('tap', {
+        message: 'test failed',
+        details: m[1].trim(),
+        severity: 'error'
+      }));
     }
   }
   return { framework: 'tap', failures };

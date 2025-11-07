@@ -1,8 +1,8 @@
-import { Failure, ParseResult, failure } from './types.js';
+import { FailureItem, ParseResult, failure } from './types.js';
 
 /** ESLint error parser for JSON output */
 export function parseESLintJSON(jsonText: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   
   try {
     const eslintOutput = JSON.parse(jsonText);
@@ -14,10 +14,14 @@ export function parseESLintJSON(jsonText: string): ParseResult {
           for (const message of fileReport.messages) {
             if (message.severity === 2) { // Only errors, not warnings
               failures.push(failure('eslint', {
-                file: fileReport.filePath,
-                line: message.line,
-                col: message.column,
+                path: fileReport.filePath,
                 message: `${message.ruleId || 'unknown-rule'}: ${message.message}`,
+                severity: 'error',
+                meta: {
+                  file: fileReport.filePath,
+                  line: message.line,
+                  col: message.column
+                }
               }));
             }
           }
@@ -30,10 +34,14 @@ export function parseESLintJSON(jsonText: string): ParseResult {
           for (const message of fileReport.messages) {
             if (message.severity === 2) { // Only errors
               failures.push(failure('eslint', {
-                file: fileReport.filePath,
-                line: message.line,
-                col: message.column,
+                path: fileReport.filePath,
                 message: `${message.ruleId || 'unknown-rule'}: ${message.message}`,
+                severity: 'error',
+                meta: {
+                  file: fileReport.filePath,
+                  line: message.line,
+                  col: message.column
+                }
               }));
             }
           }
@@ -50,10 +58,14 @@ export function parseESLintJSON(jsonText: string): ParseResult {
       if (match) {
         const [, file, lineNum, colNum, message] = match;
         failures.push(failure('eslint', {
-          file: file.trim(),
-          line: parseInt(lineNum),
-          col: parseInt(colNum),
+          path: file.trim(),
           message: message.trim(),
+          severity: 'error',
+          meta: {
+            file: file.trim(),
+            line: parseInt(lineNum),
+            col: parseInt(colNum)
+          }
         }));
       }
     }
@@ -64,7 +76,7 @@ export function parseESLintJSON(jsonText: string): ParseResult {
 
 /** ESLint error parser for default output format */
 export function parseESLint(text: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   const lines = text.split(/\r?\n/);
   const eslintRegex = /(.+):(\d+):(\d+):\s*(?:\d+:\d+\s+)?([^\s].*)/;
 
@@ -77,10 +89,14 @@ export function parseESLint(text: string): ParseResult {
       if (message.toLowerCase().includes('error') || 
           !message.toLowerCase().includes('warning')) {
         failures.push(failure('eslint', {
-          file: file.trim(),
-          line: parseInt(lineNum),
-          col: parseInt(colNum),
+          path: file.trim(),
           message: message.trim(),
+          severity: 'error',
+          meta: {
+            file: file.trim(),
+            line: parseInt(lineNum),
+            col: parseInt(colNum)
+          }
         }));
       }
     }
