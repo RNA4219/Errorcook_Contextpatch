@@ -94,21 +94,25 @@ class MinimalContextExtractor:
             if failure_path in file_path or file_path in failure_path:
                 score += 1.0
                 continue
+                
             # Same directory gets medium score
             failure_dir = os.path.dirname(failure_path)
             file_dir = os.path.dirname(file_path)
             if failure_dir == file_dir:
                 score += 0.5
                 continue
+                
             # Related names get lower score
             failure_base = os.path.splitext(os.path.basename(failure_path))[0]
             file_base = os.path.splitext(os.path.basename(file_path))[0]
             if failure_base == file_base or failure_base in file_base or file_base in failure_base:
                 score += 0.3
+        
         # Normalize score to 0-1 range
         max_possible_score = len(failure_paths)
         if max_possible_score > 0:
             score = min(1.0, score / max_possible_score)
+        
         return score
 
 
@@ -125,48 +129,90 @@ def extract_related_files_from_diff(diff_content: str, repo_root: str) -> List[s
     """
     files = set()
     repo_path = Path(repo_root)
+    
+    # Look for file paths in diff headers
     lines = diff_content.split('\n')
     for line in lines:
         if line.startswith('--- ') or line.startswith('+++ '):
+            # Extract file path from diff header: --- a/path/to/file
             parts = line.split(' ', 2)
             if len(parts) >= 2:
                 path = parts[1]
+                # Remove the a/ or b/ prefix if present
                 if path.startswith('a/') or path.startswith('b/'):
                     path = path[2:]
+                
+                # Create full path relative to repo root
                 full_path = repo_path / path
                 if full_path.exists():
                     files.add(str(full_path))
+    
     return list(files)
 
 
-def extract_related_functions_and_classes(error_message: str) -> List[str]:
-    # Simple extraction of dotted names like module.func or object.method
-    pattern = r"([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)+)"
-    return list(set(re.findall(pattern, error_message)))
-
-
 def extract_related_functions_or_classes(error_message: str, file_path: str) -> List[str]:
-    """Extract function or class names from error message that might be relevant"""
-    # New robust approach: capture dotted names, plus plain names that are not part of a dotted name
-    dotted = extract_related_functions_and_classes(error_message)
-    plain = [m for m in re.findall(r"([A-Za-z_][A-Za-z0-9_]*)", error_message) if '.' not in m]
-    # Remove plain names that are already covered by dotted names
-    filtered = [p for p in plain if not any(p == d.split('.')[0] for d in dotted)]
-    return list(set(dotted + filtered))
+    """
+    Extract function or class names from error message that might be relevant
+    
+    Args:
+        error_message: Error message to analyze
+        file_path: Path to the source file
+        
+    Returns:
+        List of relevant function/class names
+    """
+    # Extract function names from error message
+    function_pattern = r"(?i)(?:function|method|class)\s+([a-zA-Z_][a-zA-Z0-9_]*[.][a-zA-Z_][a-zA-Z0-9_]*)"
+    functions = re.findall(function_pattern, error_message)
+    
+    # Also look for simple function names
+    simple_func_pattern = r"([a-zA-Z_][a-zA-Z0-9_]*)\("
+    simple_functions = re.findall(simple_func_pattern, error_message)
+    
+    # Combine and return unique names
+    all_names = set(functions + simple_functions)
+    return list(all_names)
 
 
 def get_related_source_files(failure_context: Dict[str, Any], repo_root: str) -> List[str]:
+    """
+    Get additional related source files based on failure context
+    
+    Args:
+        failure_context: Context of failures
+        repo_root: Repository root directory
+        
+    Returns:
+        List of related source file paths
+    """
     related_files = set()
+    
+    # Look for any file references in error details
     if 'details' in failure_context:
-        path_pattern = r"([-A-Za-z0-9_./]+(?:\\.py|\\.js|\\.ts|\\.tsx|\\.jsx|\\.java|\\.go|\\.rs|\\.cpp|\\.c|\\.h|\\.hpp|\\.html|\\.css|\\.scss|\\.json|\\.yaml|\\.yml|\\.md|\\.txt|\\.xml)):\\d+"
+        # Look for file paths in error details
+        path_pattern = r"([a-zA-Z0-9_\-./]+(?:\.py|\.js|\.ts|\.tsx|\.jsx|\.java|\.go|\.rs|\.cpp|\.c|\.h|\.hpp|\.html|\.css|\.scss|\.json|\.yaml|\.yml|\.md|\.txt|\.xml)):\d+"
         matches = re.findall(path_pattern, failure_context['details'])
         for match in matches:
+            # Only add files that exist in the repo
             full_path = Path(repo_root) / match
             if full_path.exists():
                 related_files.add(str(full_path))
-    if 'path' in failure_context:
-        # also consider the path itself
-        p = failure_context['path']
-        if Path(p).exists():
-            related_files.add(str(Path(p).resolve()))
+    
+    # If patch info is available, extract files from there
+    if 'patch' in failure_context and 'unified_diff' in failure_context['patch']:
+        patch_files = extract_related_files_from_diff(
+            failure_context['patch']['unified_diff'], 
+            repo_root
+        )
+        related_files.update(patch_files)
+    
+    # Look for related functions/classes that might be in other files
+    if 'message' in failure_context:
+        if 'path' in failure_context:
+            func_names = extract_related_functions_or_classes(
+                failure_context['message'], 
+                failure_context['path']
+            )
+            # This would require more sophisticated analysis to find where these functions are defined
+    
     return list(related_files)
