@@ -15,11 +15,7 @@
     "types": ["node", "jest"]
   },
   "include": [
+    "contextpatch/src/**/*",
     "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests"
   ]
 }
