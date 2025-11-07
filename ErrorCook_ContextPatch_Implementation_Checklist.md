@@ -1,8 +1,8 @@
 # ErrorCook ContextPatch Implementation Checklist
 
-- [ ] Monorepo structure validated
-- [ ] Parser implementations: TAP, JUnit, pytest, Go, Cargo
-- [ ] LLM integration plan
-- [ ] CLI and Prompts alignment
-- [ ] Output schemas and guardrails
-- [ ] Tests scaffold
+- [x] Monorepo structure validated
+- [x] Parser implementations: TAP, JUnit, pytest, Go, Cargo
+- [x] LLM integration plan
+- [x] CLI and Prompts alignment
+- [x] Output schemas and guardrails
+- [x] Tests scaffold
