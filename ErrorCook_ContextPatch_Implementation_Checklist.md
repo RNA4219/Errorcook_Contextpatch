@@ -11,14 +11,14 @@
 ## 1. プロジェクト構造とパッケージ構成 ✅
 
 ### 1.1 -Monorepo構成の確認
-- [ ] **Monorepo構造**: `contextpatch/`、`errorcook/`、`ctxpack-spec/` の3パッケージ構成
-- [ ] **ローカルLLM対応**: 各パッケージが軽量に設計され、7-14B LLMで動作可能
-- [ ] **TypeScript実装**: 全パッケージがTypeScriptで統一
+- [x] **Monorepo構造**: `contextpatch/`、`errorcook/`、`ctxpack-spec/` の3パッケージ構成
+- [x] **ローカルLLM対応**: 各パッケージが軽量に設計され、7-14B LLMで動作可能
+- [x] **TypeScript実装**: 全パッケージがTypeScriptで統一
 
 ### 1.2 主要コマンド構造
-- [ ] **ContextPatchコマンド**: `detect/triage/patch/validate/summarize/package`
-- [ ] **ErrorCookコマンド**: `smell/rank/propose/validate/nightshift`
-- [ ] **CLI実装**: 各パッケージのCLI（`src/cli.ts`）が実装済み
+- [x] **ContextPatchコマンド**: `detect/triage/patch/validate/summarize/package`
+- [x] **ErrorCookコマンド**: `smell/rank/propose/validate/nightshift`
+- [x] **CLI実装**: 各パッケージのCLI（`src/cli.ts`）が実装済み
 
 ---
 
@@ -30,16 +30,16 @@
 - [ ] **最小コンテキスト抽出**: 失敗関連ファイルの差分と依存関係のみを抽出
 
 ### 2.2 失敗ログのパーサ実装
-- [ ] **TAP形式**: `parsers/tap.ts` - Test Anything Protocol対応
-- [ ] **JUnit形式**: `parsers/junit.ts` - Java/JUnit XML形式対応
-- [ ] **pytest形式**: `parsers/pytest.ts` - Python pytest出力対応
-- [ ] **Goテスト形式**: `parsers/go.ts` - Go test出力対応
-- [ ] **Cargo形式**: `parsers/cargo.ts` - Rust Cargo test出力対応
+- [x] **TAP形式**: `parsers/tap.ts` - Test Anything Protocol対応
+- [x] **JUnit形式**: `parsers/junit.ts` - Java/JUnit XML形式対応
+- [x] **pytest形式**: `parsers/pytest.ts` - Python pytest出力対応
+- [x] **Goテスト形式**: `parsers/go.ts` - Go test出力対応
+- [x] **Cargo形式**: `parsers/cargo.ts` - Rust Cargo test出力対応
 
 ### 2.3 スキーマ検証
-- [ ] **入力検証**: 失敗アイテムのスキーマ適合性チェック
-- [ ] **出力検証**: 生成されるJSONのスキーマ適合性チェック
-- [ ] **型安全性**: TypeScript型定義による実行時エラーの予防
+- [x] **入力検証**: 失敗アイテムのスキーマ適合性チェック
+- [x] **出力検証**: 生成されるJSONのスキーマ適合性チェック
+- [x] **型安全性**: TypeScript型定義による実行時エラーの予防
 
 ---
 
@@ -149,8 +149,8 @@
 ## 8. テストと評価 🧪
 
 ### 8.1 ユニットテスト
-- [ ] **パーサテスト**: 各パーサのテスト case作成
-- [ ] **スキーマ検証テスト**: 入力・出力の検証テスト
+- [x] **パーサテスト**: 各パーサのテスト case作成
+- [x] **スキーマ検証テスト**: 入力・出力の検証テスト
 - [ ] **LLM統合テスト**: プロンプトとレスポンスの統合テスト
 
 ### 8.2 統合テスト

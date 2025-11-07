@@ -2,9 +2,9 @@ export type FailureItem = {
   tool: string;
   path?: string;
   message: string;
-  details?: string;
-  severity?: 'error' | 'warning';
-  meta?: Record<string, unknown>;
+  testMessage?: string; // For JUnit failure message attribute
+  line?: number;
+  col?: number;
 };
 
 export type ParseResult = {
@@ -16,9 +16,10 @@ export function failure(tool: string, p: Partial<FailureItem>): FailureItem {
   return {
     tool,
     message: p.message ?? "",
-    path: p.path,
-    details: p.details,
-    severity: p.severity,
-    meta: p.meta ?? {},
+    test: p.test,
+    file: p.file,
+    testMessage: p.testMessage,
+    line: p.line,
+    col: p.col,
   };
 }

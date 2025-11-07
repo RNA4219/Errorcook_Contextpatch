@@ -7,7 +7,10 @@ export function parseGoTest(text: string): ParseResult {
   let currentTest: string | undefined;
   for (const line of lines) {
     const start = /^--- FAIL: (\S+)/.exec(line);
-    if (start) { currentTest = start[1]; continue; }
+    if (start) { 
+      currentTest = start[1]; 
+      continue; 
+    }
     const loc = /^\s+(.+?):(\d+):\s+(.*)$/.exec(line);
     if (loc && currentTest) {
       failures.push(failure('gotest', {
@@ -20,7 +23,7 @@ export function parseGoTest(text: string): ParseResult {
           line: Number(loc[2])
         }
       }));
-      currentTest = undefined;
+      // Note: We don't reset currentTest here to allow multiple errors per test
     }
   }
   return { framework: 'gotest', failures };
