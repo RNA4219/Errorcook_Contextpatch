@@ -189,15 +189,11 @@ function detect(base: string, fromArtifact: string, artifactDir: string) {
         for (const failure of parseResult.failures) {
           failureItems.push({
             tool: parseResult.framework,
-            path: failure.file,
+            path: failure.path,
             message: failure.message,
-            details: content.substring(0, 500), // First 500 chars as details
-            severity: "error",
-            meta: {
-              test: failure.test,
-              line: failure.line,
-              col: failure.col
-            }
+            details: failure.details || content.substring(0, 500), // First 500 chars as details
+            severity: failure.severity || "error",
+            meta: failure.meta || {}
           });
         }
       }

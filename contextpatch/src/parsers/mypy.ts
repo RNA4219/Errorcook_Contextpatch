@@ -1,8 +1,8 @@
-import { Failure, ParseResult, failure } from './types.js';
+import { FailureItem, ParseResult, failure } from './types.js';
 
 /** MyPy error parser */
 export function parseMyPy(text: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   const lines = text.split(/\r?\n/);
   // MyPy format: file.py:line:col: error: message
   const mypyRegex = /^(.+):(\d+):(\d+):\s*(error|note):\s*(.+)$/;
@@ -14,10 +14,14 @@ export function parseMyPy(text: string): ParseResult {
       
       if (severity.toLowerCase() === 'error') {
         failures.push(failure('mypy', {
-          file: file.trim(),
-          line: parseInt(lineNum),
-          col: parseInt(colNum),
+          path: file.trim(),
           message: message.trim(),
+          severity: 'error',
+          meta: {
+            file: file.trim(),
+            line: parseInt(lineNum),
+            col: parseInt(colNum)
+          }
         }));
       }
     }

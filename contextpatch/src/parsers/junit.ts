@@ -1,8 +1,8 @@
-import { Failure, ParseResult, failure } from './types.js';
+import { FailureItem, ParseResult, failure } from './types.js';
 
 /** Minimal JUnit XML parser (regex-based, not full XML). */
 export function parseJUnit(xml: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   // naive split by <testcase ...> ... </testcase>
   const tcRegex = /<testcase\b[^>]*>([\s\S]*?)<\/testcase>/g;
   let m: RegExpExecArray | null;

@@ -1,8 +1,8 @@
-import { Failure, ParseResult, failure } from './types.js';
+import { FailureItem, ParseResult, failure } from './types.js';
 
 /** Ruff error parser */
 export function parseRuff(text: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   const lines = text.split(/\r?\n/);
   // Ruff format: file.py:line:col: code message
   const ruffRegex = /^(.+):(\d+):(\d+):\s*([A-Z][A-Z0-9]+)\s*(.+)$/;
@@ -14,10 +14,14 @@ export function parseRuff(text: string): ParseResult {
       
       // Include all linter errors (could filter by severity if needed)
       failures.push(failure('ruff', {
-        file: file.trim(),
-        line: parseInt(lineNum),
-        col: parseInt(colNum),
+        path: file.trim(),
         message: `${errorCode}: ${message.trim()}`,
+        severity: 'error',
+        meta: {
+          file: file.trim(),
+          line: parseInt(lineNum),
+          col: parseInt(colNum)
+        }
       }));
     }
   }

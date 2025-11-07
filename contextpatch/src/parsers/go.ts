@@ -1,8 +1,8 @@
-import { Failure, ParseResult, failure } from './types.js';
+import { FailureItem, ParseResult, failure } from './types.js';
 
 /** Minimal `go test` parser for FAIL blocks. */
 export function parseGoTest(text: string): ParseResult {
-  const failures: Failure[] = [];
+  const failures: FailureItem[] = [];
   const lines = text.split(/\r?\n/);
   let currentTest: string | undefined;
   for (const line of lines) {
@@ -14,10 +14,14 @@ export function parseGoTest(text: string): ParseResult {
     const loc = /^\s+(.+?):(\d+):\s+(.*)$/.exec(line);
     if (loc && currentTest) {
       failures.push(failure('gotest', {
-        test: currentTest,
-        file: loc[1],
-        line: Number(loc[2]),
+        path: loc[1],
         message: loc[3],
+        severity: 'error',
+        meta: {
+          test: currentTest,
+          file: loc[1],
+          line: Number(loc[2])
+        }
       }));
       // Note: We don't reset currentTest here to allow multiple errors per test
     }

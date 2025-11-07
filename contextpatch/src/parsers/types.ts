@@ -1,7 +1,6 @@
-export type Failure = {
-  framework: string;
-  test?: string;
-  file?: string;
+export type FailureItem = {
+  tool: string;
+  path?: string;
   message: string;
   testMessage?: string; // For JUnit failure message attribute
   line?: number;
@@ -10,12 +9,12 @@ export type Failure = {
 
 export type ParseResult = {
   framework: string;
-  failures: Failure[];
+  failures: FailureItem[];
 };
 
-export function failure(framework: string, p: Partial<Failure>): Failure {
+export function failure(tool: string, p: Partial<FailureItem>): FailureItem {
   return {
-    framework,
+    tool,
     message: p.message ?? "",
     test: p.test,
     file: p.file,
