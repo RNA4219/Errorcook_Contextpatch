@@ -1,36 +1,44 @@
-// src/parsers/index.ts - Export all parsers
-import { parseTapOutput } from './tap';
-import { parseJunitOutput } from './junit';
-import { parsePytestOutput } from './pytest';
-import { parseGoOutput } from './go';
-import { parseCargoOutput } from './cargo';
+/**
+ * パーサー共通インデックス - すべてのFailureItemパーサーのエントリーポイント
+ */
 
-export {
-  parseTapOutput,
-  parseJunitOutput,
-  parsePytestOutput,
-  parseGoOutput,
-  parseCargoOutput
-};
+export { FailureParser, ParserRegistry, ParserConstructor } from './interfaces';
+export { TapParser } from './tap';
+export { PytestParser } from './pytest';
+export { JUnitParser } from './junit';
+export { GoParser } from './go';
+export { CargoParser } from './cargo';
 
-// Generic parser that routes to specific parsers based on tool name
-export async function parseFailureOutput(toolName: string, output: any) {
-  switch (toolName.toLowerCase()) {
-    case 'tap':
-      return parseTapOutput(output);
-    case 'junit':
-      return await parseJunitOutput(output);
-    case 'pytest':
-      return parsePytestOutput(output);
-    case 'go':
-      return parseGoOutput(output);
-    case 'cargo':
-      return parseCargoOutput(output);
-    case 'eslint': // 既存のパーサー
-    case 'clippy': // 既存のパーサー
-      // これらのパーサーは以前のファイル failure_parser.ts に実装されている
-      throw new Error(`Tool ${toolName} parser has been moved to the main failure_parser. Please use the functions from src/failure_parser instead.`);
-    default:
-      throw new Error(`Unsupported tool: ${toolName}`);
+// 後方互換性のための関数群
+export { parseTapOutput } from './tap';
+export { parsePytestOutput } from './pytest';
+export { parseJunitOutput } from './junit';
+export { parseGoOutput } from './go';
+export { parseCargoOutput } from './cargo';
+
+/**
+ * デフォルトのパーサーインスタンスを返すファクトリー関数
+ */
+export function getDefaultParsers() {
+  return [
+    new TapParser(),
+    new PytestParser(),
+    new JUnitParser(),
+    new GoParser(),
+    new CargoParser()
+  ];
+}
+
+/**
+ * デフォルトのパーサーレジストリを返す関数
+ */
+export function getDefaultParserRegistry(): ParserRegistry {
+  const registry = new ParserRegistry();
+  const parsers = getDefaultParsers();
+  
+  for (const parser of parsers) {
+    registry.register(parser);
   }
+  
+  return registry;
 }
