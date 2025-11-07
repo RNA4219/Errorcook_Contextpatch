@@ -7,6 +7,7 @@ export function parseTAP(input: string): ParseResult {
   for (const line of lines) {
     const m = /^not ok\s+\d+\s+(.*)$/.exec(line);
     if (m) {
+      const details = m[1].trim();
       failures.push(failure('tap', {
         message: 'test failed',
         details: m[1].trim(),
