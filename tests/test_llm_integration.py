@@ -188,7 +188,7 @@ class TestPipelineIntegration:
             "max_files": 3,
             "max_lines": 60,
             "timeout_sec": 900,
-            "roi_budget": 20
+            "roi_budget": 0.5
         }
         
         pipeline = ErrorCookPipeline(config)
@@ -229,7 +229,7 @@ AssertionError: assert 5 == 6
         
     def test_pipeline_with_multiple_tool_types(self):
         """Test pipeline with different CI tool types"""
-        config = {"max_files": 3, "max_lines": 60, "timeout_sec": 900}
+        config = {"max_files": 3, "max_lines": 60, "timeout_sec": 900, "roi_budget": 0.5}
         pipeline = ErrorCookPipeline(config)
         
         # Test with different tool types

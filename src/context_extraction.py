@@ -161,16 +161,23 @@ def extract_related_functions_or_classes(error_message: str, file_path: str) -> 
     Returns:
         List of relevant function/class names
     """
-    # Extract function names from error message
-    function_pattern = r"(?i)(?:function|method|class)\s+([a-zA-Z_][a-zA-Z0-9_]*[.][a-zA-Z_][a-zA-Z0-9_]*)"
-    functions = re.findall(function_pattern, error_message)
-    
-    # Also look for simple function names
+    all_names = set()
+
+    # Pattern to capture fully qualified names like 'module.function' or 'Class.method'
+    # This is more robust for Python tracebacks
+    qualified_name_pattern = r"([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)"
+    all_names.update(re.findall(qualified_name_pattern, error_message))
+
+    # Pattern to capture simple function/method names followed by parentheses
+    # e.g., 'add()' in 'calculator.add() missing...'
     simple_func_pattern = r"([a-zA-Z_][a-zA-Z0-9_]*)\("
-    simple_functions = re.findall(simple_func_pattern, error_message)
-    
-    # Combine and return unique names
-    all_names = set(functions + simple_functions)
+    all_names.update(re.findall(simple_func_pattern, error_message))
+
+    # If the error message contains a file path, try to extract function/class names
+    # that are likely defined in that file.
+    # This part would require more advanced parsing or AST analysis, which is out of scope
+    # for a lightweight regex-based extraction. For now, we rely on names in the error message.
+
     return list(all_names)
 
 
