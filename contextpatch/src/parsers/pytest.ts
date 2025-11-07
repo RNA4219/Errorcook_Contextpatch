@@ -7,7 +7,9 @@ export function parsePytest(text: string): ParseResult {
   let m: RegExpExecArray | null;
   while ((m = re.exec(text))) {
     failures.push(failure('pytest', {
-      path: m[1],
+      path: m[1],        // Use path for schema compliance
+      file: m[1],        // For backward compatibility
+      test: m[2],        // For wrapper function access
       message: `Test ${m[2]} failed: ${(m[3] || 'failed').trim()}`,
       severity: 'error',
       meta: {
