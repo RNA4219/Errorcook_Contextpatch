@@ -337,8 +337,8 @@ class ROIManager:
     
     def can_proceed(self, roi_score: float, budget_limit: Optional[float] = None) -> bool:
         """Check if processing can proceed within budget"""
-        budget_limit = budget_limit or float(self.roi_budget)
-        return roi_score >= budget_limit
+        budget_limit = budget_limit if budget_limit is not None else float(self.roi_budget)
+        return (roi_score * 100) >= budget_limit
 
 class ModelProfileManager:
     """Model profile and token management"""
