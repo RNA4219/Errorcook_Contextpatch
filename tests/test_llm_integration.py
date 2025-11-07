@@ -72,7 +72,7 @@ class TestLLMIntegration:
                 {"file": "src/code.py", "line": 10, "reason": "Potential null value causing assertion failure"}
             ],
             "patch": {
-                "unified_diff": "--- a/src/code.py\n+++ b/src/code.py\n@@ -7,7 +7,7 @@\n def example_function():\n-    return False\n+    return True\n"
+                "unified_diff": """--- a/src/code.py\n+++ b/src/code.py\n@@ -7,7 +7,7 @@\n def example_function():\n-    return False\n+    return True\n"""
             },
             "tests": [
                 {"path": "test_fix.py", "content": "def test_fix(): assert example_function() == True", "purpose": "Verify fix"}
@@ -188,7 +188,7 @@ class TestPipelineIntegration:
             "max_files": 3,
             "max_lines": 60,
             "timeout_sec": 900,
-            "roi_budget": 20
+            "roi_budget": 0.5 # Modified from 20 to 0.5
         }
         
         pipeline = ErrorCookPipeline(config)
@@ -229,7 +229,7 @@ AssertionError: assert 5 == 6
         
     def test_pipeline_with_multiple_tool_types(self):
         """Test pipeline with different CI tool types"""
-        config = {"max_files": 3, "max_lines": 60, "timeout_sec": 900}
+        config = {"max_files": 3, "max_lines": 60, "timeout_sec": 900, "roi_budget": 0.5} # Added roi_budget: 0.5
         pipeline = ErrorCookPipeline(config)
         
         # Test with different tool types
