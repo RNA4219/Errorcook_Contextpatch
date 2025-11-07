@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parsePytest } from './pytest.js';
+import { FailureItem } from './types.js';
 
 describe('pytest parser', () => {
   it('should parse basic pytest failure', () => {
@@ -9,7 +10,7 @@ describe('pytest parser', () => {
     expect(result.framework).toBe('pytest');
     expect(result.failures.length).toBe(1);
     
-    const failure = result.failures[0];
+    const failure: FailureItem = result.failures[0];
     expect(failure.tool).toBe('pytest');
     expect(failure.path).toBe('tests/test_example.py');
     expect(failure.message).toBe('Test test_addition failed: assertion failed');
@@ -26,7 +27,7 @@ describe('pytest parser', () => {
 
     expect(result.failures.length).toBe(1);
     
-    const failure = result.failures[0];
+    const failure: FailureItem = result.failures[0];
     expect(failure.tool).toBe('pytest');
     expect(failure.path).toBe('tests/test_example.py');
     expect(failure.message).toBe('Test test_subtraction failed: failed');

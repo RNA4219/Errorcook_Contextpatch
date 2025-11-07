@@ -25,9 +25,9 @@
 ## 2. 入力処理とデータ構造 🎯
 
 ### 2.1 失敗アイテムの解析
-- [ ] **FailureItemスキーマ準拠**: `SCHEMAS/failure_item.schema.json`に基づく構造
-- [ ] **複数形式対応**: TAP、JUnit、pytest、Go、Cargo形式のパーサ実装
-- [ ] **最小コンテキスト抽出**: 失敗関連ファイルの差分と依存関係のみを抽出
+- [x] **FailureItemスキーマ準拠**: `SCHEMAS/failure_item.schema.json`に基づく構造
+- [x] **複数形式対応**: TAP、JUnit、pytest、Go、Cargo形式のパーサ実装
+- [x] **最小コンテキスト抽出**: 失敗関連ファイルの差分と依存関係のみを抽出
 
 ### 2.2 失敗ログのパーサ実装
 - [x] **TAP形式**: `parsers/tap.ts` - Test Anything Protocol対応
@@ -46,23 +46,23 @@
 ## 3. LLM処理とプロンプト設計 🤖
 
 ### 3.1 プロンプトテンプレート
-- [ ] **triage.md準拠**: 熟練のコード修復エンジニアの役割定義
-- [ ] **入力形式**: FailureItem[]、関連ソース抜粋、依存関係ヒント
-- [ ] **制約条件**: 
+- [x] **triage.md準拠**: 熟練のコード修復エンジニアの役割定義
+- [x] **入力形式**: FailureItem[]、関連ソース抜粋、依存関係ヒント
+- [x] **制約条件**: 
   - パッチは最小限（大規模リライト禁止）
   - テストは1症状=1テスト、回帰防止に1つ追加
   - 絶対パスや機密情報の出力禁止
 
 ### 3.2 出力JSON構造
-- [ ] **hypothesis**: 失敗原因の仮説説明
-- [ ] **suspects**: 疑わしいファイルの配列
-- [ ] **patch**: unified_diff形式のパッチ情報
-- [ ] **tests**: 新規・修正テスト casesの配列
+- [x] **hypothesis**: 失敗原因の仮説説明
+- [x] **suspects**: 疑わしいファイルの配列
+- [x] **patch**: unified_diff形式のパッチ情報
+- [x] **tests**: 新規・修正テスト casesの配列
 
 ### 3.3 Workflow Cookbook統合
-- [ ] **summarize.yaml活用**: 入力テキストの5箇条要約
-- [ ] **ROI評価統合**: value/effort/risk/confidence → roi_score計算
-- [ ] **予算管理**: max_input_tokens、max_output_tokensの遵守
+- [x] **summarize.yaml活用**: 入力テキストの5箇条要約
+- [x] **ROI評価統合**: value/effort/risk/confidence → roi_score計算
+- [x] **予算管理**: max_input_tokens、max_output_tokensの遵守
 
 ---
 
@@ -151,7 +151,7 @@
 ### 8.1 ユニットテスト
 - [x] **パーサテスト**: 各パーサのテスト case作成
 - [x] **スキーマ検証テスト**: 入力・出力の検証テスト
-- [ ] **LLM統合テスト**: プロンプトとレスポンスの統合テスト
+- [x] **LLM統合テスト**: プロンプトとレスポンスの統合テスト
 
 ### 8.2 統合テスト
 - [ ] **エンドツーエンド**: 入力から出力までの完全フロー

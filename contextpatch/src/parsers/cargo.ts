@@ -24,5 +24,6 @@ export function parseCargo(text: string): ParseResult {
       }
     }));
   }
+  }
   return { framework: 'cargo', failures };
 }
