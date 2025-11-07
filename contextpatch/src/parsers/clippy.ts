@@ -20,13 +20,17 @@ export function parseClippy(text: string): ParseResult {
             const primarySpan = jsonLine.message.spans.find((s: any) => s.is_primary);
             if (primarySpan) {
               failures.push(failure('clippy', {
+                tool: 'clippy',
                 path: primarySpan.file_name,
+                file: primarySpan.file_name,  // For backward compatibility with tests
                 message: jsonLine.message.message,
+                details: `Clippy error at ${primarySpan.file_name}:${primarySpan.line_start}:${primarySpan.column_start}`,
                 severity: 'error',
+                line: primarySpan.line_start,  // For backward compatibility with tests
+                col: primarySpan.column_start,  // For backward compatibility with tests
                 meta: {
-                  file: primarySpan.file_name,
                   line: primarySpan.line_start,
-                  col: primarySpan.column_start
+                  column: primarySpan.column_start
                 }
               }));
             }
@@ -54,13 +58,17 @@ export function parseClippy(text: string): ParseResult {
             message.toLowerCase().includes('lint') ||
             isClippyRelated(message)) {
           failures.push(failure('clippy', {
+            tool: 'clippy',
             path: file.trim(),
+            file: file.trim(),  // For backward compatibility with tests
             message: message.trim(),
+            details: `Clippy error at ${file.trim()}:${lineNum}:${colNum}`,
             severity: 'error',
+            line: parseInt(lineNum),  // For backward compatibility with tests
+            col: parseInt(colNum),    // For backward compatibility with tests
             meta: {
-              file: file.trim(),
               line: parseInt(lineNum),
-              col: parseInt(colNum)
+              column: parseInt(colNum)
             }
           }));
         }

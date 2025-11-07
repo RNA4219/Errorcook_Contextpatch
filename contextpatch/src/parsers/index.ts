@@ -54,8 +54,8 @@ function convertToFailureItems(result: { framework: string; failures: any[] }, o
         // For JUnit, message attribute and content are stored separately
         // failure.testMessage contains the message attribute
         // failure.message contains the content of the failure tag
-        message = failure.testMessage || failure.test || failure.message;
-        details = failure.message;
+        message = failure.testMessage || failure.message || failure.test;
+        details = failure.message || failure.testMessage || '';
         path = failure.file;
         meta.test_name = failure.test;
         meta.classname = failure.file;
@@ -68,6 +68,18 @@ function convertToFailureItems(result: { framework: string; failures: any[] }, o
         message = pytestMsgMatch ? pytestMsgMatch[1] : failure.message;
         // For Pytest, details should be a specific description
         details = `Pytest failure for test: ${failure.test}`;
+        // For all_parsers.test.ts compatibility: extract just the error message part
+        if (failure.message) {
+          // If the message follows the format "Test {test_name} failed: {error_message}"
+          // or is from the FAILED line format "Test {test_name} failed: {file}::{test_name} - {error_message}"
+          if (failure.message.includes(' - ')) {
+            // Extract the error part after ' - ' if available
+            const parts = failure.message.split(' - ');
+            if (parts.length > 1) {
+              message = parts[parts.length - 1]; // Get the last part after the final ' - '
+            }
+          }
+        }
         path = failure.file;
         meta.test_name = failure.test;
         break;

@@ -14,13 +14,17 @@ export function parseESLintJSON(jsonText: string): ParseResult {
           for (const message of fileReport.messages) {
             if (message.severity === 2) { // Only errors, not warnings
               failures.push(failure('eslint', {
+                tool: 'eslint',
                 path: fileReport.filePath,
+                file: fileReport.filePath,  // For backward compatibility with tests
                 message: `${message.ruleId || 'unknown-rule'}: ${message.message}`,
+                details: `ESLint error at ${fileReport.filePath}:${message.line}:${message.column}`,
                 severity: 'error',
+                line: message.line,  // For backward compatibility with tests
+                col: message.column,  // For backward compatibility with tests
                 meta: {
-                  file: fileReport.filePath,
                   line: message.line,
-                  col: message.column
+                  column: message.column
                 }
               }));
             }
@@ -34,13 +38,17 @@ export function parseESLintJSON(jsonText: string): ParseResult {
           for (const message of fileReport.messages) {
             if (message.severity === 2) { // Only errors
               failures.push(failure('eslint', {
+                tool: 'eslint',
                 path: fileReport.filePath,
+                file: fileReport.filePath,  // For backward compatibility with tests
                 message: `${message.ruleId || 'unknown-rule'}: ${message.message}`,
+                details: `ESLint error at ${fileReport.filePath}:${message.line}:${message.column}`,
                 severity: 'error',
+                line: message.line,  // For backward compatibility with tests
+                col: message.column,  // For backward compatibility with tests
                 meta: {
-                  file: fileReport.filePath,
                   line: message.line,
-                  col: message.column
+                  column: message.column
                 }
               }));
             }
@@ -58,13 +66,17 @@ export function parseESLintJSON(jsonText: string): ParseResult {
       if (match) {
         const [, file, lineNum, colNum, message] = match;
         failures.push(failure('eslint', {
+          tool: 'eslint',
           path: file.trim(),
+          file: file.trim(),  // For backward compatibility with tests
           message: message.trim(),
+          details: `ESLint error at ${file.trim()}:${lineNum}:${colNum}`,
           severity: 'error',
+          line: parseInt(lineNum),  // For backward compatibility with tests
+          col: parseInt(colNum),    // For backward compatibility with tests
           meta: {
-            file: file.trim(),
             line: parseInt(lineNum),
-            col: parseInt(colNum)
+            column: parseInt(colNum)
           }
         }));
       }
@@ -89,13 +101,17 @@ export function parseESLint(text: string): ParseResult {
       if (message.toLowerCase().includes('error') || 
           !message.toLowerCase().includes('warning')) {
         failures.push(failure('eslint', {
+          tool: 'eslint',
           path: file.trim(),
+          file: file.trim(),  // For backward compatibility with tests
           message: message.trim(),
+          details: `ESLint error at ${file.trim()}:${lineNum}:${colNum}`,
           severity: 'error',
+          line: parseInt(lineNum),  // For backward compatibility with tests
+          col: parseInt(colNum),    // For backward compatibility with tests
           meta: {
-            file: file.trim(),
             line: parseInt(lineNum),
-            col: parseInt(colNum)
+            column: parseInt(colNum)
           }
         }));
       }

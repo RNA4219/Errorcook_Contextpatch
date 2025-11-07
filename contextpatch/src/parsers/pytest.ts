@@ -7,14 +7,15 @@ export function parsePytest(text: string): ParseResult {
   let m: RegExpExecArray | null;
   while ((m = re.exec(text))) {
     failures.push(failure('pytest', {
-      path: m[1],        // Use path for schema compliance
-      file: m[1],        // For backward compatibility
-      test: m[2],        // For wrapper function access
-      message: `Test ${m[2]} failed: ${(m[3] || 'failed').trim()}`,
+      path: m[1],
+      file: m[1],  // For backward compatibility with tests
+      test: m[2],  // For backward compatibility with tests
+      message: `Test ${m[2]} failed: ${(m[3] || 'failed').trim()}`,  // For backward compatibility with src/parsers/pytest.test.ts
+      details: `Pytest failure for test: ${m[2]}`,  // For backward compatibility with tests
       severity: 'error',
       meta: {
-        test: m[2],
-        file: m[1]
+        test: m[2],  // For backward compatibility with tests
+        file: m[1]   // For backward compatibility with tests
       }
     }));
   }

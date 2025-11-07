@@ -14,15 +14,15 @@ export function parseGoTest(text: string): ParseResult {
     const loc = /^\s+(.+?):(\d+):\s+(.*)$/.exec(line);
     if (loc && currentTest) {
       failures.push(failure('gotest', {
-        path: loc[1],        // Use path for schema compliance
-        file: loc[1],        // For backward compatibility
-        test: currentTest,   // For wrapper function access
+        path: loc[1],
+        file: loc[1],  // For backward compatibility with tests
+        test: currentTest,  // For backward compatibility with tests
         message: loc[3],
-        line: Number(loc[2]), // For wrapper function access
+        details: `Go test failure in ${currentTest}`,
         severity: 'error',
+        line: Number(loc[2]),  // For backward compatibility with tests
         meta: {
-          test: currentTest,
-          file: loc[1],
+          test_name: currentTest,
           line: Number(loc[2])
         }
       }));

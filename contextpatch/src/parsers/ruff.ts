@@ -14,13 +14,17 @@ export function parseRuff(text: string): ParseResult {
       
       // Include all linter errors (could filter by severity if needed)
       failures.push(failure('ruff', {
+        tool: 'ruff',
         path: file.trim(),
+        file: file.trim(),  // For backward compatibility with tests
         message: `${errorCode}: ${message.trim()}`,
+        details: `Ruff error at ${file.trim()}:${lineNum}:${colNum}`,
         severity: 'error',
+        line: parseInt(lineNum),  // For backward compatibility with tests
+        col: parseInt(colNum),    // For backward compatibility with tests
         meta: {
-          file: file.trim(),
           line: parseInt(lineNum),
-          col: parseInt(colNum)
+          column: parseInt(colNum)
         }
       }));
     }

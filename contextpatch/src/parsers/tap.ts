@@ -10,12 +10,10 @@ export function parseTAP(input: string): ParseResult {
       const details = m[1].trim();
       failures.push(failure('tap', {
         message: 'test failed',
-        details: details,
-        test: details,        // For wrapper function access
+        details: m[1].trim(),
+        test: m[1].trim(),  // For backward compatibility with tests
         severity: 'error',
-        meta: {
-          test: details
-        }
+        meta: {}
       }));
     }
   }
