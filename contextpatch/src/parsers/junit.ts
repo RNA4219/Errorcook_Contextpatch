@@ -3,38 +3,53 @@ import { FailureItem, ParseResult, failure } from './types.js';
 /** Minimal JUnit XML parser (regex-based, not full XML). */
 export function parseJUnit(xml: string): ParseResult {
   const failures: FailureItem[] = [];
-  // naive split by <testcase ...> ... </testcase>
-  const tcRegex = /<testcase\b[^>]*>([\s\S]*?)<\/testcase>/g;
-  let m: RegExpExecArray | null;
-  while ((m = tcRegex.exec(xml))) {
-    const tc = m[0];
-    const nameMatch = /name="([^"]+)"/.exec(tc) || /name='([^']+)'/.exec(tc);
-    const classnameMatch = /classname="([^"]+)"/.exec(tc) || /classname='([^']+)'/.exec(tc);
-    const failureWithMessageAttr = /<failure[^>]*message=["']([^"']*)["'][^>]*>([\s\S]*?)<\/failure>/.exec(tc);
-    if (failureWithMessageAttr) {
-      // failureWithMessageAttr[1] is the message attribute, [2] is the content
-      const messageAttr = failureWithMessageAttr[1];
-      const content = failureWithMessageAttr[2].trim();
+  
+  // Match only testcases that contain at least one failure element
+  // Using positive lookahead to ensure failure tag exists within the testcase
+  const tcRegex = /<testcase\s+([^>]+?)>(?=[\s\S]*?<failure[\s\S]*?<\/failure>)([\s\S]*?)<\/testcase>/g;
+  let tcMatch: RegExpExecArray | null;
+  
+  while ((tcMatch = tcRegex.exec(xml)) !== null) {
+    const attributes = tcMatch[1];
+    const content = tcMatch[2];
+    
+    // Extract classname and name attributes
+    const classNameMatch = /classname=(["'])([^"']*)\1/.exec(attributes);
+    const nameMatch = /name=(["'])([^"']*)\1/.exec(attributes);
+    
+    // Find all failure elements in this testcase
+    const failureRegex = /<failure([^>]*)>([\s\S]*?)<\/failure>/g;
+    let failureMatch: RegExpExecArray | null;
+    
+    while ((failureMatch = failureRegex.exec(content)) !== null) {
+      const failureAttributes = failureMatch[1];
+      const failureContent = failureMatch[2].trim();
       
-      failures.push(failure('junit', {
-        test: nameMatch?.[1],
-        file: classnameMatch?.[1],
-        message: content, // Keep content as the main message
-        testMessage: messageAttr // Store message attribute separately
-      }));
-    } else {
-      // If no message attribute, try matching without it
-      const failureMatch = /<failure[^>]*>([\s\S]*?)<\/failure>/.exec(tc);
-      if (failureMatch) {
-        const content = failureMatch[1].trim();
+      // Extract message attribute from failure tag if it exists
+      const messageAttrMatch = /message=(["'])([^"']*)\1/.exec(failureAttributes);
+      const failureMessage = messageAttrMatch ? messageAttrMatch[2] : failureContent;
+      const failureDetails = messageAttrMatch ? failureContent : '';
+      
+      if (classNameMatch && nameMatch) {
+        const className = classNameMatch[2];
+        const testName = nameMatch[2];
         
         failures.push(failure('junit', {
-          test: nameMatch?.[1],
-          file: classnameMatch?.[1],
-          message: content // Content as the main message
+          path: className,
+          file: className,  // For backward compatibility with tests
+          test: testName,   // For backward compatibility with tests
+          message: failureMessage,
+          details: failureDetails, // Content as details when message attr exists
+          severity: 'error',
+          meta: {
+            test_name: testName,
+            classname: className,
+            testMessage: failureMessage
+          }
         }));
       }
     }
   }
+  
   return { framework: 'junit', failures };
 }

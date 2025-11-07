@@ -15,11 +15,14 @@ export function parseGoTest(text: string): ParseResult {
     if (loc && currentTest) {
       failures.push(failure('gotest', {
         path: loc[1],
+        file: loc[1],  // For backward compatibility with tests
+        test: currentTest,  // For backward compatibility with tests
         message: loc[3],
+        details: `Go test failure in ${currentTest}`,
         severity: 'error',
+        line: Number(loc[2]),  // For backward compatibility with tests
         meta: {
-          test: currentTest,
-          file: loc[1],
+          test_name: currentTest,
           line: Number(loc[2])
         }
       }));

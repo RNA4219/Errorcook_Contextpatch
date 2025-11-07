@@ -59,8 +59,41 @@ class TestLLMClient extends BaseLLMClient {
   }
   
   async call(prompt: string): Promise<{ success: boolean; content: string; error?: string }> {
-    // Mock implementation for testing
-    return { success: true, content: `Test response for: ${prompt}` };
+    // Mock implementation for testing that returns valid JSON structure
+    const mockResponse = {
+      hypothesis: "This is a mock hypothesis for testing purposes. The issue appears to be related to type checking in the specified files.",
+      suspects: [
+        {
+          file: "src/example.ts",
+          line: 10,
+          reason: "Possible type mismatch or undefined variable"
+        }
+      ],
+      patch: {
+        unified_diff: `diff --git a/src/example.ts b/src/example.ts
+index 1234567..8901234 100644
+--- a/src/example.ts
++++ b/src/example.ts
+@@ -7,7 +7,7 @@
+ function example() {
+   const value = getValue();
+-  return value.process();
++  return value ? value.process() : null;
+ }`,
+        files_changed: 1,
+        lines_added: 1,
+        lines_removed: 1
+      },
+      tests: [
+        {
+          path: "tests/example.test.ts",
+          content: "import { example } from '../src/example';\n\ntest('example handles null value', () => {\n  // Test implementation\n});",
+          purpose: "Verify that the function handles null values correctly"
+        }
+      ]
+    };
+    
+    return { success: true, content: JSON.stringify(mockResponse) };
   }
 }
 

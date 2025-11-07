@@ -8,11 +8,14 @@ export function parsePytest(text: string): ParseResult {
   while ((m = re.exec(text))) {
     failures.push(failure('pytest', {
       path: m[1],
-      message: `Test ${m[2]} failed: ${(m[3] || 'failed').trim()}`,
+      file: m[1],  // For backward compatibility with tests
+      test: m[2],  // For backward compatibility with tests
+      message: `Test ${m[2]} failed: ${(m[3] || 'failed').trim()}`,  // For backward compatibility with src/parsers/pytest.test.ts
+      details: `Pytest failure for test: ${m[2]}`,  // For backward compatibility with tests
       severity: 'error',
       meta: {
-        test: m[2],
-        file: m[1]
+        test: m[2],  // For backward compatibility with tests
+        file: m[1]   // For backward compatibility with tests
       }
     }));
   }

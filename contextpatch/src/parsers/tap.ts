@@ -10,7 +10,9 @@ export function parseTAP(input: string): ParseResult {
       failures.push(failure('tap', {
         message: 'test failed',
         details: m[1].trim(),
-        severity: 'error'
+        test: m[1].trim(),  // For backward compatibility with tests
+        severity: 'error',
+        meta: {}
       }));
     }
   }

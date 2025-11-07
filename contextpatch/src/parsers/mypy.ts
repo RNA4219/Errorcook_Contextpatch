@@ -14,13 +14,17 @@ export function parseMyPy(text: string): ParseResult {
       
       if (severity.toLowerCase() === 'error') {
         failures.push(failure('mypy', {
+          tool: 'mypy',
           path: file.trim(),
+          file: file.trim(),  // For backward compatibility with tests
           message: message.trim(),
+          details: `MyPy error at ${file.trim()}:${lineNum}:${colNum}`,
           severity: 'error',
+          line: parseInt(lineNum),  // For backward compatibility with tests
+          col: parseInt(colNum),    // For backward compatibility with tests
           meta: {
-            file: file.trim(),
             line: parseInt(lineNum),
-            col: parseInt(colNum)
+            column: parseInt(colNum)
           }
         }));
       }
