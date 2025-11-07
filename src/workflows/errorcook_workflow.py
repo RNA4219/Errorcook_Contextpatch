@@ -1,11 +1,9 @@
 # Errorcook Workflow Implementation
 
 from typing import List, Dict, Any
-from .failure_analysis import TriageAgent, process_failures
-from ..schemas.failure_item import FailureItem
-from ..schemas.output import TriageOutput
-from ..prompts.triage import TRIAGE_PROMPT_TEMPLATE
-from ..prompts.guardrails import GUARDRAILS_CONSTRAINTS
+from src.workflows.failure_analysis import TriageAgent, process_failures
+from src.schemas.failure_item import FailureItem
+from src.schemas.output import TriageOutput
 
 class ErrorcookWorkflow:
     """Main workflow class for processing CI failures through errorcook process"""

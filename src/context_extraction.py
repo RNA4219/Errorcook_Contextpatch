@@ -7,7 +7,6 @@ import re
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from pathlib import Path
-import json
 
 
 @dataclass
@@ -209,7 +208,7 @@ def get_related_source_files(failure_context: Dict[str, Any], repo_root: str) ->
     # Look for related functions/classes that might be in other files
     if 'message' in failure_context:
         if 'path' in failure_context:
-            func_names = extract_related_functions_or_classes(
+            extract_related_functions_or_classes(
                 failure_context['message'], 
                 failure_context['path']
             )

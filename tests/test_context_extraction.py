@@ -2,13 +2,10 @@
 Tests for minimal context extraction functionality
 Based on IMPLEMENTATION_REFERENCE_FILES.md specification
 """
-import os
 import tempfile
 from pathlib import Path
-import pytest
 from src.context_extraction import (
     MinimalContextExtractor,
-    ContextFile,
     extract_related_files_from_diff,
     extract_related_functions_or_classes,
     get_related_source_files

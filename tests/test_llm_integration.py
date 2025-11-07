@@ -4,7 +4,7 @@ Based on IMPLEMENTATION_REFERENCE_FILES.md specification
 """
 import json
 import pytest
-from src.main import ErrorCookPipeline, CIParserAdapter, JSONPromptTemplate, ProcessingLimits
+from src.main import ErrorCookPipeline, JSONPromptTemplate, ProcessingLimits
 from src.main import FailureItem
 
 

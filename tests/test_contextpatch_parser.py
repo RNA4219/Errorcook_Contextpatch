@@ -1,4 +1,3 @@
-import pytest
 
 from contextpatch.parser import ContextPatchParser
 

@@ -463,7 +463,7 @@ class ErrorCookPipeline:
             enhanced_context = context + "\n\nRELATED SOURCE CONTEXT:\n" + "\n\n".join(context_excerpts) if context_excerpts else context
 
             # Step 3: Generate prompt and get LLM analysis (mock implementation)
-            prompt = self.prompt_template.generate_prompt(failures, enhanced_context)
+            self.prompt_template.generate_prompt(failures, enhanced_context)
             
             # Mock LLM response - in real implementation would call actual LLM
             mock_response = self._generate_mock_llm_response(failures)

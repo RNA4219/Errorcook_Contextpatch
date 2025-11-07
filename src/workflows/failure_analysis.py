@@ -1,24 +1,24 @@
 # Implementation Plan for CI Result Normalization & Workflow
-
-## Phase 2 – Prompt Integration
-
-### Goal:
-Integrate triage prompt and guardrails into LLM inference workflow to generate error classification and fix suggestions.
-
-### Implementation:
-
-1. Create a class `TriageAgent` that encapsulates the logic for prompting LLMs
-2. Define input/output structures that align with `failure_item.schema.json` and `output.schema.json`
-3. Integrate guardrail constraints into prompt template
-
-Let's create the main workflow module:
-
-```python
+#
+# Phase 2 – Prompt Integration
+#
+# Goal:
+# Integrate triage prompt and guardrails into LLM inference workflow to generate error classification and fix suggestions.
+#
+# Implementation:
+#
+# 1. Create a class `TriageAgent` that encapsulates the logic for prompting LLMs
+# 2. Define input/output structures that align with `failure_item.schema.json` and `output.schema.json`
+# 3. Integrate guardrail constraints into prompt template
+#
+# Let's create the main workflow module:
+#
+# ```python
 # src/workflows/failure_analysis.py
 from typing import List, Dict, Any
-from .types import FailureItem
-from prompts.triage import TRIAGE_PROMPT_TEMPLATE
-from prompts.guardrails import GUARDRAILS_CONSTRAINTS
+from src.schemas.failure_item import FailureItem
+from src.prompts.triage import TRIAGE_PROMPT_TEMPLATE
+from src.prompts.guardrails import GUARDRAILS_CONSTRAINTS
 
 class TriageAgent:
     """LLM-based triage agent for analyzing CI failures and generating fix suggestions"""
@@ -68,7 +68,7 @@ class TriageAgent:
                 }
             ],
             "patch": {
-                "unified_diff": "--- a/src/main.py\n+++ b/src/main.py\n@@ -1,5 +1,5 @@\n def main():\n-    import utils\n+    from . import utils\n     return utils.process()\n",
+                "unified_diff": """--- a/src/main.py\n+++ b/src/main.py\n@@ -1,5 +1,5 @@\n def main():\n-    import utils\n+    from . import utils\n     return utils.process()\n""",
                 "files_changed": 1,
                 "lines_added": 1,
                 "lines_removed": 1
