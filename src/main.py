@@ -425,8 +425,45 @@ class ErrorCookPipeline:
             if not self.roi_manager.can_proceed(roi_score):
                 raise ValueError(f"ROI score {roi_score} below budget threshold {self.limits.roi_budget}")
             
+            # Step 2.5: Extract minimal context relevant to failures
+            from .context_extraction import MinimalContextExtractor, get_related_source_files
+            
+            # Extract paths from failures
+            failure_paths = [f.path for f in failures if f.path and f.path != "unknown"]
+            
+            # Get additional related files based on error context
+            related_files = set()
+            for failure in failures:
+                if failure.details:
+                    failure_context = {
+                        "details": failure.details,
+                        "path": failure.path,
+                        "message": failure.message
+                    }
+                    try:
+                        related = get_related_source_files(failure_context, os.getcwd())
+                        related_files.update(related)
+                    except Exception:
+                        # If repo root detection fails, continue with basic paths
+                        pass
+            
+            # Combine failure paths with related files
+            all_relevant_paths = list(set(failure_paths + list(related_files)))
+            
+            # Extract minimal context
+            extractor = MinimalContextExtractor(os.getcwd())
+            context_files = extractor.extract_context(all_relevant_paths)
+            
+            # Create context string with relevant file contents
+            context_excerpts = []
+            for ctx_file in context_files:
+                if ctx_file.content and len(ctx_file.content.strip()) > 0:
+                    context_excerpts.append(f"=== {ctx_file.path} ===\n{ctx_file.content[:500]}")  # Limit context size
+            
+            enhanced_context = context + "\n\nRELATED SOURCE CONTEXT:\n" + "\n\n".join(context_excerpts) if context_excerpts else context
+
             # Step 3: Generate prompt and get LLM analysis (mock implementation)
-            prompt = self.prompt_template.generate_prompt(failures, context)
+            prompt = self.prompt_template.generate_prompt(failures, enhanced_context)
             
             # Mock LLM response - in real implementation would call actual LLM
             mock_response = self._generate_mock_llm_response(failures)
