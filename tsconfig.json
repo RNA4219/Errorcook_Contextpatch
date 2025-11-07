@@ -8,6 +8,7 @@
     "types": ["node"]
   },
   "include": [
-    "contextpatch/src/**/*"
+    "contextpatch/src/**/*",
+    "src/**/*"
   ]
 }
