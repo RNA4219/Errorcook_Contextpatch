@@ -161,9 +161,13 @@ def extract_related_functions_or_classes(error_message: str, file_path: str) -> 
     Returns:
         List of relevant function/class names
     """
-    # Extract function names from error message
+    # Extract dotted names like module.func or Class.method
+    dotted_pattern = r"([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s*\("
+    functions = re.findall(dotted_pattern, error_message)
+
+    # Extract function/method/class keywords followed by name
     function_pattern = r"(?i)(?:function|method|class)\s+([a-zA-Z_][a-zA-Z0-9_]*[.][a-zA-Z_][a-zA-Z0-9_]*)"
-    functions = re.findall(function_pattern, error_message)
+    functions += re.findall(function_pattern, error_message)
     
     # Also look for simple function names
     simple_func_pattern = r"([a-zA-Z_][a-zA-Z0-9_]*)\("
