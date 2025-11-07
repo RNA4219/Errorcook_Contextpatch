@@ -9,7 +9,7 @@ import { parseClippy } from './clippy';
 import { parseMypy } from './mypy';
 import { parseRuff } from './ruff';
 
-import { FailureItem } from '../../src/types/failure_item'; // Import the FailureItem type from the root src
+import { FailureItem } from './types'; // Import the FailureItem type from the local types file
 
 // Helper function to convert ParseResult to FailureItem[]
 function convertToFailureItems(result: { framework: string; failures: any[] }, originalInput?: string): FailureItem[] {
@@ -62,6 +62,10 @@ function convertToFailureItems(result: { framework: string; failures: any[] }, o
         break;
         
       case 'pytest':
+        // For Pytest, extract original message from formatted one
+        // Parser message format: "Test {test_name} failed: {original_error}"
+        const pytestMsgMatch = /^Test \w+ failed: (.*)$/.exec(failure.message);
+        message = pytestMsgMatch ? pytestMsgMatch[1] : failure.message;
         // For Pytest, details should be a specific description
         details = `Pytest failure for test: ${failure.test}`;
         path = failure.file;

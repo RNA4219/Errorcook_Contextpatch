@@ -3,38 +3,44 @@ import { FailureItem, ParseResult, failure } from './types.js';
 /** Minimal JUnit XML parser (regex-based, not full XML). */
 export function parseJUnit(xml: string): ParseResult {
   const failures: FailureItem[] = [];
-  // naive split by <testcase ...> ... </testcase>
-  const tcRegex = /<testcase\b[^>]*>([\s\S]*?)<\/testcase>/g;
-  let m: RegExpExecArray | null;
-  while ((m = tcRegex.exec(xml))) {
-    const tc = m[0];
-    const nameMatch = /name="([^"]+)"/.exec(tc) || /name='([^']+)'/.exec(tc);
-    const classnameMatch = /classname="([^"]+)"/.exec(tc) || /classname='([^']+)'/.exec(tc);
-    const failureWithMessageAttr = /<failure[^>]*message=["']([^"']*)["'][^>]*>([\s\S]*?)<\/failure>/.exec(tc);
-    if (failureWithMessageAttr) {
-      // failureWithMessageAttr[1] is the message attribute, [2] is the content
-      const messageAttr = failureWithMessageAttr[1];
-      const content = failureWithMessageAttr[2].trim();
+  
+  // Find all test cases that contain failure elements
+  // The pattern looks for: <testcase ...> ... <failure> ... </failure> ... </testcase>
+  const testCaseRegex = /<testcase\s+([^>]+)>([\s\S]*?<failure[^>]*>([\s\S]*?)<\/failure>[\s\S]*)<\/testcase>/g;
+  let match;
+  
+  while ((match = testCaseRegex.exec(xml)) !== null) {
+    // match[1]: attributes of the testcase element
+    // match[2]: content of the testcase (including the failure)
+    // match[3]: content inside the failure element
+    
+    // Extract classname and name attributes
+    const classnameMatch = /classname=(["'])([^"']*)\1/.exec(match[1]);
+    const nameMatch = /name=(["'])([^"']*)\1/.exec(match[1]);
+    
+    // Extract failure details
+    const failureFullMatch = /<failure([^>]*)>([\s\S]*?)<\/failure>/.exec(match[2]);
+    if (failureFullMatch) {
+      const failureAttrs = failureFullMatch[1];
+      const content = failureFullMatch[2].trim();
+      
+      // Check if failure tag has a message attribute  
+      const messageAttrMatch = /message=(["'])([^"']*)\1/.exec(failureAttrs);
+      const messageAttr = messageAttrMatch ? messageAttrMatch[2] : undefined;
       
       failures.push(failure('junit', {
-        test: nameMatch?.[1],
-        file: classnameMatch?.[1],
-        message: content, // Keep content as the main message
-        testMessage: messageAttr // Store message attribute separately
+        path: classnameMatch?.[2],
+        file: classnameMatch?.[2], // For backward compatibility
+        test: nameMatch?.[2],      // For wrapper function access
+        message: content,
+        testMessage: messageAttr,
+        severity: 'error',
+        meta: {
+          test: nameMatch?.[2],
+        }
       }));
-    } else {
-      // If no message attribute, try matching without it
-      const failureMatch = /<failure[^>]*>([\s\S]*?)<\/failure>/.exec(tc);
-      if (failureMatch) {
-        const content = failureMatch[1].trim();
-        
-        failures.push(failure('junit', {
-          test: nameMatch?.[1],
-          file: classnameMatch?.[1],
-          message: content // Content as the main message
-        }));
-      }
     }
   }
+  
   return { framework: 'junit', failures };
 }
