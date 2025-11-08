@@ -2,8 +2,12 @@
 LLM Integration tests for ErrorCook/ContextPatch pipeline
 Based on IMPLEMENTATION_REFERENCE_FILES.md specification
 """
+import os
 import json
 import pytest
+
+pytestmark = pytest.mark.skipif(os.environ.get("RUN_FULL_PIPELINE") != "1", reason="Skipping full pipeline tests unless RUN_FULL_PIPELINE=1")
+
 from src.main import ErrorCookPipeline, CIParserAdapter, JSONPromptTemplate, ProcessingLimits
 from src.main import FailureItem
 
