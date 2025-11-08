@@ -23,7 +23,7 @@ class LLMClient {
 
 // Example configuration - making sure no duplicate keys
 const defaultConfig: LLMConfig = {
-  provider: 'local',  // This was probably duplicated in the original file
+  provider: 'local',
   model: 'llama3',
   endpoint: 'http://localhost:11434/api/generate'
 };
