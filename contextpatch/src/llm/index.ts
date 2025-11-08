@@ -4,6 +4,8 @@ interface LLMClient {
   callPrompt(systemPrompt: string, userPrompt: string): Promise<{ success: boolean; content: string; error?: string }>;
 }
 
+import { LocalLLMClient } from './local_llm.js';
+
 interface LLMConfig {
   provider: 'openai' | 'claude' | 'local' | 'test';
   model?: string;
@@ -144,7 +146,10 @@ function createLLMClient(config: LLMConfig): LLMClient {
     case 'test':
       return new TestLLMClient(config);
     case 'claude':
+      // Claude client implementation would go here
+      return new TestLLMClient(config); // Fallback for now
     case 'local':
+      return new LocalLLMClient(config);
     default:
       // For now, default to test client for unimplemented providers
       return new TestLLMClient(config);
