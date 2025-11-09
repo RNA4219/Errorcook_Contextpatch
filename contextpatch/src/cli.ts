@@ -80,6 +80,7 @@ Commands:
 Options:
   -p <path> - Path to .ctxpack directory (default: ./work/.ctxpack)
   --from-artifact <dir> - Directory containing CI artifacts to parse (for detect)
+  --llm-provider <provider> - LLM provider to use (e.g., 'openai', 'local', 'test') (default: 'test')
 `;
 
 function arg(k: string, def?: string): string | undefined {
@@ -98,6 +99,7 @@ async function main() {
   const cmd = process.argv[2];
   const p: string = arg("-p", "./work/.ctxpack")!; // Non-null assertion since we have a default
   const fromArtifact = arg("--from-artifact", undefined);
+  const llmProvider = arg("--llm-provider", "test");
   
   if (!cmd) { 
     console.log(usage); 
@@ -119,7 +121,8 @@ async function main() {
       break;
     }
     case "triage": {
-      await triage(base, artifact);
+      const llmConfig = { provider: llmProvider as any };
+      await triage(base, artifact, llmConfig);
       break;
     }
     case "patch": {
@@ -209,7 +212,7 @@ function detect(base: string, fromArtifact: string, artifactDir: string) {
   console.log(`detect: found ${failureItems.length} failure items, written to ${outputPath}`);
 }
 
-async function triage(base: string, artifactDir: string) {
+async function triage(base: string, artifactDir: string, llmConfig: any) {
   // Read the detect.jsonl file to get failures
   const detectPath = resolve(artifactDir, "detect.jsonl");
   if (!existsSync(detectPath)) {
@@ -227,7 +230,7 @@ async function triage(base: string, artifactDir: string) {
   const userPrompt = buildTriagePrompt(failureItems);
 
   // Create LLM client and call the triage prompt
-  const llm = createLLMClient({ provider: 'test' }); // In production, would use real provider
+  const llm = createLLMClient(llmConfig); // Use the provided LLM configuration
   const response = await llm.callPrompt(
     "You are a code repair assistant. Analyze the provided CI failures and generate a hypothesis, suspect files, patch, and test cases.",
     userPrompt

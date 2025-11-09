@@ -1,72 +1,22 @@
-import { validateOutputSchema, ValidationResult } from '../validation/SchemaValidator.js';
+// Response processor for LLM outputs
+import { validateOutputSchema, ValidationResult } from "../validation/SchemaValidator.js";
 
-// Define the expected output structure
-interface OutputStructure {
-  hypothesis: string;
-  suspects: Array<{
-    file: string;
-    line?: number;
-    reason?: string;
-  }>;
-  patch: {
-    unified_diff: string;
-    files_changed?: number;
-    lines_added?: number;
-    lines_removed?: number;
-  };
-  tests: Array<{
-    path: string;
-    content: string;
-    purpose?: string;
-  }>;
-}
-
-// Process the LLM response and validate against schema
-function processLLMResponse(response: string): { 
-  success: boolean; 
-  data?: OutputStructure; 
+export type ProcessResult = {
+  success: boolean;
+  data?: any;
   error?: string;
   validation?: ValidationResult;
-} {
+};
+
+export function processLLMResponse(content: string): ProcessResult {
   try {
-    // Attempt to parse JSON from LLM response
-    const parsedResponse = JSON.parse(response) as OutputStructure;
-    
-    // Validate against the output schema
-    const validation = validateOutputSchema(parsedResponse);
-    
-    if (!validation.valid) {
-      return {
-        success: false,
-        error: `Response validation failed: ${validation.errors?.join(', ')}`,
-        validation
-      };
+    const data = JSON.parse(content);
+    const validation = validateOutputSchema(data);
+    if (!validation?.valid) {
+      return { success: false, data, validation };
     }
-    
-    // Return the validated response
-    return {
-      success: true,
-      data: parsedResponse,
-      validation
-    };
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      return {
-        success: false,
-        error: `Invalid JSON in LLM response: ${error.message}`
-      };
-    } else if (error instanceof Error) {
-      return {
-        success: false,
-        error: `Error processing LLM response: ${error.message}`
-      };
-    } else {
-      return {
-        success: false,
-        error: `Unknown error processing LLM response: ${String(error)}`
-      };
-    }
+    return { success: true, data, validation };
+  } catch (e: any) {
+    return { success: false, error: typeof e?.message === 'string' ? e.message : String(e) };
   }
 }
-
-export { processLLMResponse, OutputStructure };

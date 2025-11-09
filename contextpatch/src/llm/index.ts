@@ -4,12 +4,17 @@ interface LLMClient {
   callPrompt(systemPrompt: string, userPrompt: string): Promise<{ success: boolean; content: string; error?: string }>;
 }
 
+import { LocalLLMClient } from './local_llm.js';
+
 interface LLMConfig {
   provider: 'openai' | 'claude' | 'local' | 'test';
   model?: string;
   apiKey?: string;
   endpoint?: string;
 }
+
+// Import OpenAI API client
+import OpenAI from 'openai';
 
 // Base class implementing the LLMClient interface
 class BaseLLMClient implements LLMClient {
@@ -32,21 +37,57 @@ class BaseLLMClient implements LLMClient {
 
 // OpenAI Client Implementation
 class OpenAIClient extends BaseLLMClient {
+  private openai: OpenAI;
+
   constructor(config: LLMConfig) {
     super(config);
+    if (!config.apiKey) {
+      throw new Error("OpenAI API key is not provided.");
+    }
+    this.openai = new OpenAI({ apiKey: config.apiKey, baseURL: config.endpoint });
   }
-  
+
   async call(prompt: string): Promise<{ success: boolean; content: string; error?: string }> {
-    // Mock implementation for now
     try {
-      // In a real implementation, this would call the OpenAI API
-      const mockResponse = `Mock OpenAI response for: ${prompt.substring(0, 50)}...`;
-      return { success: true, content: mockResponse };
-    } catch (error) {
-      return { 
-        success: false, 
-        content: '', 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      const chatCompletion = await this.openai.chat.completions.create({
+        messages: [{ role: 'user', content: prompt }],
+        model: this.config.model || 'gpt-3.5-turbo',
+      });
+      const content = chatCompletion.choices[0].message?.content;
+      if (content) {
+        return { success: true, content };
+      } else {
+        return { success: false, content: '', error: 'No content in OpenAI response' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        content: '',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  async callPrompt(systemPrompt: string, userPrompt: string): Promise<{ success: boolean; content: string; error?: string }> {
+    try {
+      const chatCompletion = await this.openai.chat.completions.create({
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        model: this.config.model || 'gpt-3.5-turbo',
+      });
+      const content = chatCompletion.choices[0].message?.content;
+      if (content) {
+        return { success: true, content };
+      } else {
+        return { success: false, content: '', error: 'No content in OpenAI response' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        content: '',
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -105,7 +146,10 @@ function createLLMClient(config: LLMConfig): LLMClient {
     case 'test':
       return new TestLLMClient(config);
     case 'claude':
+      // Claude client implementation would go here
+      return new TestLLMClient(config); // Fallback for now
     case 'local':
+      return new LocalLLMClient(config);
     default:
       // For now, default to test client for unimplemented providers
       return new TestLLMClient(config);
