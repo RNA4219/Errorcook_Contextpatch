@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { TapParser, PytestParser, JUnitParser, GoParser, CargoParser, getDefaultParserRegistry, ParserRegistry } from './index';
 import { FailureItem } from '../types/FailureItem';
 
