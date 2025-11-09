@@ -7,8 +7,11 @@ class ContextPatchError(Exception):
 def _merge(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
     result = dict(a)
     for k, v in b.items():
-        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
-            result[k] = _merge(result[k], v)
+        if k in result and isinstance(result[k], dict):
+            if isinstance(v, dict):
+                result[k] = _merge(result[k], v)
+            else:
+                raise ContextPatchError(f"Cannot merge dict with non-dict for key '{k}'")
         else:
             result[k] = v
     return result
