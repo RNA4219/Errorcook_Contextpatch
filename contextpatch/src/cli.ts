@@ -15,7 +15,7 @@ import { parseRuff } from "./parsers/ruff.js";
 import { parseClippy } from "./parsers/clippy.js";
 
 // Import LLM functions
-import { createLLMClient } from "./llm/index.js";
+import { createLLMClient, LLMBackend } from "./llm/index.js";
 import { buildTriagePrompt } from "./prompts/triage.js";
 
 // Import validation function
@@ -97,7 +97,7 @@ function ensureDir(p: string) {
 
 async function main() {
   const cmd = process.argv[2];
-  const p: string = arg("-p", "./work/.ctxpack")!; // Non-null assertion since we have a default
+  const p: string = arg("-p", "./work/.ctxpack")!;
   const fromArtifact = arg("--from-artifact", undefined);
   const llmProvider = arg("--llm-provider", "test");
   
@@ -106,7 +106,7 @@ async function main() {
     process.exit(0); 
   }
 
-  const base = resolve(p!); // Non-null assertion since default is provided
+  const base = resolve(p!); 
   ensureDir(base);
   const artifact = resolve(base, "artifact");
   ensureDir(artifact);
@@ -176,13 +176,13 @@ function detect(base: string, fromArtifact: string, artifactDir: string) {
         parseResult = parseGoTest(content);
       } else if (file.endsWith('.log') && content.includes('failures=')) {  // cargo test typically has 'failures=' in output
         parseResult = parseCargo(content);
-      } else if (file.endsWith('.log') && (content.includes('mypy') || content.match(/\.py:\d+:\d+:\s*error:/))) {
+      } else if (file.endsWith('.log') && (content.includes('mypy') || content.match(/\\.py:\\d+:\\d+:\\s*error:/))) {
         parseResult = parseMyPy(content);
-      } else if (file.endsWith('.txt') || file.endsWith('.log') && content.match(/\.py:\d+:\d+:\s*[A-Z][A-Z0-9]+\s+/)) {
+      } else if (file.endsWith('.txt') || file.endsWith('.log') && content.match(/\\.py:\\d+:\\d+:\\s*[A-Z][A-Z0-9]+\\s+/)) {
         parseResult = parseRuff(content);
-      } else if (content.includes('clippy') || content.match(/\.rs:\d+:\d+:/)) {
+      } else if (content.includes('clippy') || content.match(/\\.rs:\\d+:\\d+:/)) {
         parseResult = parseClippy(content);
-      } else if (content.includes('eslint') && content.match(/:\d+:\d+:\s*/)) {
+      } else if (content.includes('eslint') && content.match(/:\\d+:\\d+:\\s*/)) {
         parseResult = parseESLint(content);
       }
       // Add other parsers as needed
@@ -230,8 +230,8 @@ async function triage(base: string, artifactDir: string, llmConfig: any) {
   const userPrompt = buildTriagePrompt(failureItems);
 
   // Create LLM client and call the triage prompt
-  const llm = createLLMClient(llmConfig); // Use the provided LLM configuration
-  const response = await llm.callPrompt(
+  const llm: LLMBackend = createLLMClient(llmConfig);
+  const response = await llm.generatePatchAndTests(
     "You are a code repair assistant. Analyze the provided CI failures and generate a hypothesis, suspect files, patch, and test cases.",
     userPrompt
   );
@@ -308,22 +308,13 @@ function validate(base: string, artifactDir: string) {
   }
   
   if (!validationResult.valid && errors.length > 0) {
-    const tap = `TAP version 13
-not ok 1 - Schema validation failed
-# Errors: ${errors.join(', ')}
-1..1
-`;
+    const tap = `TAP version 13\nnot ok 1 - Schema validation failed\n# Errors: ${errors.join(', ')}\n1..1\n`;
     writeFileSync(tapPath, tap);
     console.error(`validate: failed, written to ${tapPath}`);
     errors.forEach(err => console.error(`  - ${err}`));
     process.exit(1);
   } else {
-    const tap = `TAP version 13
-ok 1 - Schema validation passed
-ok 2 - Patch format is valid
-ok 3 - Has required fields (hypothesis, suspects, patch, tests)
-1..3
-`;
+    const tap = `TAP version 13\nok 1 - Schema validation passed\nok 2 - Patch format is valid\nok 3 - Has required fields (hypothesis, suspects, patch, tests)\n1..3\n`;
     writeFileSync(tapPath, tap);
     console.log(`validate: all checks passed, written to ${tapPath}`);
   }
@@ -342,29 +333,7 @@ function summarize(base: string, artifactDir: string) {
 
   const triageData = JSON.parse(readFileSync(triagePath, 'utf8')) as OutputSchema;
   
-  const summary = `# ContextPatch Summary
-
-## Problem Analysis
-- **Hypothesis**: ${triageData.hypothesis.substring(0, 200)}...
-
-## Suspected Files
-${triageData.suspects.map(s => `- ${s.file}:${s.line} - ${s.reason?.substring(0, 80) || 'No reason provided'}`).join('\n')}
-
-## Proposed Patch
-- **Files Changed**: ${triageData.patch.files_changed || 'Unknown'}
-- **Lines Added**: ${triageData.patch.lines_added || 'Unknown'}  
-- **Lines Removed**: ${triageData.patch.lines_removed || 'Unknown'}
-- **Path**: patch/diff.patch
-
-## Tests Added
-- **Count**: ${triageData.tests.length}
-${triageData.tests.map(t => `- ${t.path} (${t.purpose || 'No purpose specified'})`).join('\n')}
-
-## Next Steps
-1. Review the proposed patch
-2. Apply the patch if appropriate
-3. Run tests to validate the fix
-`;
+  const summary = `# ContextPatch Summary\n\n## Problem Analysis\n- **Hypothesis**: ${triageData.hypothesis.substring(0, 200)}...\n\n## Suspected Files\n${triageData.suspects.map(s => `- ${s.file}:${s.line} - ${s.reason?.substring(0, 80) || 'No reason provided'}`).join('\n')}\n\n## Proposed Patch\n- **Files Changed**: ${triageData.patch.files_changed || 'Unknown'}\n- **Lines Added**: ${triageData.patch.lines_added || 'Unknown'}  \n- **Lines Removed**: ${triageData.patch.lines_removed || 'Unknown'}\n- **Path**: patch/diff.patch\n\n## Tests Added\n- **Count**: ${triageData.tests.length}\n${triageData.tests.map(t => `- ${t.path} (${t.purpose || 'No purpose specified'})`).join('\n')}\n\n## Next Steps\n1. Review the proposed patch\n2. Apply the patch if appropriate\n3. Run tests to validate the fix\n`;
 
   const summaryPath = resolve(artifactDir, "summary.md");
   writeFileSync(summaryPath, summary);
