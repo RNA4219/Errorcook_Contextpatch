@@ -7,18 +7,10 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
+from lib.errorcook.failure_item import FailureItem
+
 # ErrorCook ContextPatch - Main Pipeline Implementation
 # Based on IMPLEMENTATION_REFERENCE_FILES.md specification
-
-@dataclass
-class FailureItem:
-    """Standardized Failure Item schema per SCHEMAS/failure_item.schema.json"""
-    tool: str
-    path: str
-    message: str
-    details: str
-    severity: str  # "error" | "warning"
-    meta: Dict[str, Any]
 
 @dataclass
 class ErrorCookOutput:
@@ -463,7 +455,7 @@ class ErrorCookPipeline:
             enhanced_context = context + "\n\nRELATED SOURCE CONTEXT:\n" + "\n\n".join(context_excerpts) if context_excerpts else context
 
             # Step 3: Generate prompt and get LLM analysis (mock implementation)
-            prompt = self.prompt_template.generate_prompt(failures, enhanced_context)
+            _ = self.prompt_template.generate_prompt(failures, enhanced_context)
             
             # Mock LLM response - in real implementation would call actual LLM
             mock_response = self._generate_mock_llm_response(failures)
