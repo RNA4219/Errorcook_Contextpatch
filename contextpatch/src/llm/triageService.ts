@@ -1,7 +1,7 @@
-import { LLMClient, createLLMClient, LLMConfig } from './llm/index.js';
-import { buildTriagePrompt } from './prompts/triage.js';
-import { FailureItem } from './parsers/types.js';
-import { processLLMResponse } from './llm/responseProcessor.js';
+import { LLMClient, createLLMClient, LLMConfig } from './index';
+import { buildTriagePrompt } from '../prompts/triage';
+import { FailureItem } from '../parsers/types';
+import { processLLMResponse } from './responseProcessor';
 
 interface TriageResult {
   success: boolean;
@@ -49,7 +49,7 @@ class TriageService {
     }
 
     // Process and validate the response
-    const processedResponse = processLLMResponse(llmResponse.content);
+    const processedResponse = processLLMResponse((llmResponse.content as string) || '');
 
     if (!processedResponse.success) {
       return {

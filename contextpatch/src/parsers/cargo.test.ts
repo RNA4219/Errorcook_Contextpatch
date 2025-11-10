@@ -4,16 +4,7 @@ import { FailureItem } from './types.js';
 
 describe('cargo parser', () => {
   it('should parse cargo test panic with location', () => {
-    const input = `test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-
-running 1 test
-test tests::test_addition ... FAILED
-
-thread 'tests::test_addition' panicked at 'assertion failed: `(left == right)`
-  left: 5,
- right: 6', src/lib.rs:4:5
-note: run with \`RUST_BACKTRACE=1\` command line flag to obtain a backtrace
-test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s`;
+    const input = `test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\r\n\r\nrunning 1 test\r\ntest tests::test_addition ... FAILED\r\n\r\nthread 'tests::test_addition' panicked at 'assertion failed: `(left == right)`\r\n  left: 5,\r\n right: 6', src/lib.rs:4:5\r\nnote: run with \`RUST_BACKTRACE=1\` command line flag to obtain a backtrace\r\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s`;
     
     const result = parseCargo(input);
 
@@ -34,8 +25,7 @@ test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
   });
 
   it('should handle multiple cargo failures', () => {
-    const input = `thread 'test1' panicked at 'first failure', src/file1.rs:10:5
-thread 'test2' panicked at 'second failure', src/file2.rs:20:10`;
+    const input = `thread 'test1' panicked at 'first failure', src/file1.rs:10:5\r\nthread 'test2' panicked at 'second failure', src/file2.rs:20:10`;
     
     const result = parseCargo(input);
 

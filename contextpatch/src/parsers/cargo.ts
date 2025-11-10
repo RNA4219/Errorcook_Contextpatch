@@ -8,44 +8,57 @@ export function parseCargo(text: string): ParseResult {
   const re = /thread '([^']*)' panicked at '([^']+)',\s+([^:\n]+):(\d+):(\d+)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(text))) {
-    const [, testName, message, file, line, col] = m;
-    failures.push(failure('cargo', {
-      path: file,
-      file: file,  // For backward compatibility with tests
-      test: testName,  // For backward compatibility with tests
-      message: message,  // Expected by test: 'boom'
-      details: `Rust panic at ${file}:${line}:${col}`,
-      severity: 'error',
-      line: Number(line),  // For backward compatibility with tests
-      col: Number(col),    // For backward compatibility with tests
-      meta: {
-        test_name: testName,
-        line: Number(line),
-        column: Number(col)
-      }
-    }));
+    const testName = m[1];
+    const messageRaw = m[2];
+    const file = m[3];
+    const line = m[4];
+    const col = m[5];
+    const message = messageRaw.replace(/\r\n/g, '\n');
+    failures.push(
+      failure('cargo', {
+        path: file,
+        file: file,  // For backward compatibility with tests
+        test: testName,  // For backward compatibility with tests
+        message: message,  // Expected by test: 'boom'
+        details: `Rust panic at ${file}:${line}:${col}`,
+        severity: 'error',
+        line: Number(line),  // For backward compatibility with tests
+        col: Number(col),    // For backward compatibility with tests
+        meta: {
+          test: testName,
+          file: file,
+          line: Number(line),
+          col: Number(col)
+        }
+      }));
   }
   
   // Additional pattern to match different cargo output format
   if (failures.length === 0) {
     const altRe = /thread '([^']*)' panicked at .*,\s+([^:\n]+):(\d+):(\d+)\s*:\s*'([^']+)'/g;
     while ((m = altRe.exec(text))) {
-      const [, testName, file, line, col, message] = m;
-      failures.push(failure('cargo', {
-        path: file,
-        file: file,
-        test: testName,
-        message: message,
-        details: `Rust panic at ${file}:${line}:${col}`,
-        severity: 'error',
-        line: Number(line),
-        col: Number(col),
-        meta: {
-          test_name: testName,
+      const testName = m[1];
+      const file = m[2];
+      const line = m[3];
+      const col = m[4];
+      const message = m[5].replace(/\r\n/g, '\n');
+      failures.push(
+        failure('cargo', {
+          path: file,
+          file: file,
+          test: testName,
+          message: message,
+          details: `Rust panic at ${file}:${line}:${col}`,
+          severity: 'error',
           line: Number(line),
-          column: Number(col)
-        }
-      }));
+          col: Number(col),
+          meta: {
+            test: testName,
+            file: file,
+            line: Number(line),
+            col: Number(col)
+          }
+        }));
     }
   }
   
@@ -53,26 +66,29 @@ export function parseCargo(text: string): ParseResult {
   if (failures.length === 0) {
     const generalRe = /panicked at '([^']+)',\s+([^:\n]+):(\d+):(\d+)/g;
     while ((m = generalRe.exec(text))) {
-      const [, message, file, line, col] = m;
-      // Extract test name from test module name if possible
+      const message = m[1];
+      const file = m[2];
+      const line = m[3];
+      const col = m[4];
       const testMatch = /thread '([^']*)'/.exec(text.substring(0, text.indexOf('panicked at')));
       const testName = testMatch ? testMatch[1] : 'unknown';
-      
-      failures.push(failure('cargo', {
-        path: file,
-        file: file,
-        test: testName,
-        message: message,
-        details: `Rust panic at ${file}:${line}:${col}`,
-        severity: 'error',
-        line: Number(line),
-        col: Number(col),
-        meta: {
-          test_name: testName,
+      failures.push(
+        failure('cargo', {
+          path: file,
+          file: file,
+          test: testName,
+          message: message,
+          details: `Rust panic at ${file}:${line}:${col}`,
+          severity: 'error',
           line: Number(line),
-          column: Number(col)
-        }
-      }));
+          col: Number(col),
+          meta: {
+            test: testName,
+            file: file,
+            line: Number(line),
+            col: Number(col)
+          }
+        }));
     }
   }
   

@@ -29,4 +29,9 @@ export class LocalLLMClient {
     };
     return { success: true, content: JSON.stringify(payload) };
   }
+
+  async callPrompt(systemPrompt: string, userPrompt: string): Promise<LLMResponse> {
+    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+    return this.call(fullPrompt);
+  }
 }

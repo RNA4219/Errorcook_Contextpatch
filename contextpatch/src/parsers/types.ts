@@ -27,9 +27,6 @@ export function failure(tool: string, p: Partial<FailureItem>): FailureItem {
     path: p.path,           // Schema-compliant field
     file: p.file || p.path, // Backward compatibility: use p.file if provided, otherwise use path
     message: p.message ?? "",
-    path: p.path,
-    file: p.file,
-    test: p.test,
     details: p.details,
     severity: p.severity,
     meta: p.meta,
