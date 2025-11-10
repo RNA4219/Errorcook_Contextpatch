@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { generatePatch, applyPatch } from '../contextpatch/src/patch/patch-generator.js';
 
 interface OutputSchema {

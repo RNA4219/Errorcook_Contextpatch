@@ -1,10 +1,4 @@
-import { 
-  validateOutputSchema, 
-  validateUnifiedDiff, 
-  validateChangeLimits, 
-  validateTestInclusion, 
-  validateAllGates 
-} from '../src/validators';
+import { describe, it, expect } from '@jest/globals';
 import { IOutput } from '../src/types';
 
 describe('Validators', () => {
