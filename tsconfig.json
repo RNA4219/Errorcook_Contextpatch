@@ -1,18 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
+    "module": "commonjs",
     "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "types": ["node", "jest"]
+    "sourceMap": true
   },
   "include": [
     "contextpatch/src/**/*",

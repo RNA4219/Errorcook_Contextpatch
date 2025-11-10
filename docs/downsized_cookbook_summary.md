@@ -41,3 +41,12 @@ Downsized Cookbookは、大規模なWorkflow Cookbook Compactを軽量化した�
 
 - ErrorCook/ContextPatchとの連携を前提に設計
 - 軽量LLMでも処理可能なワークフローを構成
+
+## リポジトリルール検出ツール
+
+- **目的**: リポジトリの既存ルール（型: mypy/strict, Lint: ruff, テスト: pytest / node:test, ESM/TS 方針, 例外ポリシー）を自動検出し、厳密遵守を支援します。
+- **実装**: `src/errorcook/inspect_repo.py` に `detect_tools` 関数を実装。
+    - `mypy` 設定 (`pyproject.toml` 内の `[tool.mypy]`) の有無を検出。
+    - `Node` テスト (`package.json` 内の `jest` 等) の有無を検出。
+    - `tests` ディレクトリの存在を検出。
+- **テスト**: `tests/test_inspect_repo.py` にて `pytest` を用いたテストを実装。Windows環境でも安定動作するよう、動的インポートにより `detect_tools` を検証します。
