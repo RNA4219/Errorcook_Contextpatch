@@ -11,9 +11,10 @@
 ## 1. プロジェクト構造とパッケージ構成 ✅
 
 ### 1.1 -Monorepo構成の確認
-- [x] **Monorepo構造**: `contextpatch/`、`errorcook/`、`ctxpack-spec/` の3パッケージ構成
-- [x] **ローカルLLM対応**: 各パッケージが軽量に設計され、7-14B LLMで動作可能
-- [x] **TypeScript実装**: 全パッケージがTypeScriptで統一
+- [ ] **Monorepo構造**: `contextpatch/`、`errorcook/`、`ctxpack-spec/` の3パッケージ構成
+- [ ] **ローカルLLM対応**: 各パッケージが軽量に設計され、7-14B LLMで動作可能
+- [ ] **TypeScript実装**: 全パッケージがTypeScriptで統一
+- [x] **rule_detector パッケージの足場作成**
 
 ### 1.2 主要コマンド構造
 - [x] **ContextPatchコマンド**: `detect/triage/patch/validate/summarize/package`
@@ -149,10 +150,11 @@
 ## 8. テストと評価 🧪
 
 ### 8.1 ユニットテスト
-- [x] **パーサテスト**: 各パーサのテスト case作成
-- [x] **スキーマ検証テスト**: 入力・出力の検証テスト
-- [x] **LLM統合テスト**: プロンプトとレスポンスの統合テスト
-- [x] **Gatesテスト**: Gates検証機能のテスト作成
+- [ ] **パーサテスト**: 各パーサのテスト case作成
+- [ ] **スキーマ検証テスト**: 入力・出力の検証テスト
+- [ ] **LLM統合テスト**: プロンプトとレスポンスの統合テスト
+- [ ] **Gatesテスト**: Gates検証機能のテスト作成
+- [x] **rule_detector の detect_rules 関数のユニットテスト作成と実行**
 
 ### 8.2 統合テスト
 - [x] **エンドツーエンド**: 入力から出力までの完全フロー
