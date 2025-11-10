@@ -6,7 +6,7 @@ import { parseGoTest } from './go';
 import { parseCargo } from './cargo';
 import { parseESLint } from './eslint';
 import { parseClippy } from './clippy';
-import { parseMypy } from './mypy';
+import { parseMyPy } from './mypy';
 import { parseRuff } from './ruff';
 
 import { FailureItem } from './types'; // Import the FailureItem type from the local types file

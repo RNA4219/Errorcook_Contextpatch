@@ -1,4 +1,4 @@
-// Define the FailureItem interface locally since it's used in this module
+import { FailureItem } from '../parsers/types';
 interface FailureItem {
   tool: string;
   path?: string;

@@ -1,7 +1,7 @@
-import { LLMClient, createLLMClient, LLMConfig } from './index';
-import { buildTriagePrompt } from '../prompts/triage';
-import { FailureItem } from '../parsers/types';
-import { processLLMResponse } from './responseProcessor';
+import { LLMClient, createLLMClient, LLMConfig } from './index.js';
+import { buildTriagePrompt } from '../prompts/triage.js';
+import { FailureItem } from '../parsers/types.js';
+import { processLLMResponse } from './responseProcessor.js';
 
 interface TriageResult {
   success: boolean;

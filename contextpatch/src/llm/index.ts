@@ -1,7 +1,13 @@
+export interface LLMResponse {
+  success: boolean;
+  content?: string;
+  error?: string;
+}
+
 // Define interface for LLM clients
 interface LLMClient {
-  call(prompt: string): Promise<{ success: boolean; content: string; error?: string }>;
-  callPrompt(systemPrompt: string, userPrompt: string): Promise<{ success: boolean; content: string; error?: string }>;
+  call(prompt: string): Promise<LLMResponse>;
+  callPrompt(systemPrompt: string, userPrompt: string): Promise<LLMResponse>;
 }
 
 import { LocalLLMClient } from './local_llm.js';
@@ -157,7 +163,7 @@ function createLLMClient(config: LLMConfig): LLMClient {
 }
 
 // Export the interface and factory function
-export { LLMClient, LLMConfig, createLLMClient };
+export { LLMClient, LLMConfig, createLLMClient, LLMResponse };
 
 // Also export the client classes if needed
 export { BaseLLMClient, OpenAIClient, TestLLMClient };

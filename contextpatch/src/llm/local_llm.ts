@@ -1,14 +1,4 @@
-export interface LLMResponse {
-  success: boolean;
-  content?: string;
-  error?: string;
-}
-
-export interface LLMConfig {
-  provider: string;
-  model?: string;
-  endpoint?: string;
-}
+import { LLMResponse, LLMConfig } from './index.js';
 
 export class LocalLLMClient {
   private config: LLMConfig;
