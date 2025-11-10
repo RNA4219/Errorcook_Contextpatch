@@ -1,0 +1,6 @@
+pyproject.toml
+rule_detector/__init__.py
+rule_detector.egg-info/PKG-INFO
+rule_detector.egg-info/SOURCES.txt
+rule_detector.egg-info/dependency_links.txt
+rule_detector.egg-info/top_level.txt
